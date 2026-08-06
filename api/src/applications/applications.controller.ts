@@ -5,10 +5,12 @@ import {
   Get,
   NotFoundException,
   Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -27,6 +29,13 @@ export class ApplicationsController {
   @Get(':id')
   async findOne(@Param('id') id: string) {
     const application = await this.applicationsService.findOne(id);
+    if (!application) throw new NotFoundException('Application not found');
+    return application;
+  }
+
+  @Patch(':id/status')
+  async changeStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
+    const application = await this.applicationsService.changeStatus(id, dto);
     if (!application) throw new NotFoundException('Application not found');
     return application;
   }

@@ -3,11 +3,11 @@ import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class CreateApplicationDto {
   @IsString()
   @IsNotEmpty()
-  company: string;
+  company!: string;
 
   @IsString()
   @IsNotEmpty()
-  jobTitle: string;
+  jobTitle!: string;
 
   @IsOptional()
   @IsString()
