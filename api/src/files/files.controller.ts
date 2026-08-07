@@ -9,10 +9,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { createReadStream } from 'fs';
+import { createReadStream } from 'node:fs';
 import type { Response } from 'express';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { extname } from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 @Controller('files')
 export class FilesController {
@@ -22,9 +23,7 @@ export class FilesController {
       storage: diskStorage({
         destination: './uploads',
         filename: (req, file, cb) => {
-          const uniqueSuffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, `${uniqueSuffix}${extname(file.originalname)}`);
+          cb(null, `${randomUUID()}${extname(file.originalname)}`);
         },
       }),
       fileFilter: (req, file, cb) => {
