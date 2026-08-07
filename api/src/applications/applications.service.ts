@@ -21,7 +21,7 @@ export class ApplicationsService {
   findOne(id: string) {
     return this.prisma.application.findUnique({
       where: { id },
-      include: { events: true },
+      include: { events: true, suggestions: true },
     });
   }
 
