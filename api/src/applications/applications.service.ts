@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
+import { UpdateApplicationDto } from './dto/update-application.dto';
 
 @Injectable()
 export class ApplicationsService {
@@ -23,6 +24,14 @@ export class ApplicationsService {
       where: { id },
       include: { events: true, suggestions: true },
     });
+  }
+
+  async update(id: string, dto: UpdateApplicationDto) {
+    const application = await this.prisma.application.findUnique({
+      where: { id },
+    });
+    if (!application) return null;
+    return this.prisma.application.update({ where: { id }, data: dto });
   }
 
   async changeStatus(id: string, dto: UpdateStatusDto) {
