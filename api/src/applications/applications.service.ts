@@ -9,8 +9,17 @@ import { ApplicationStatus } from '@prisma/client';
 export class ApplicationsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateApplicationDto) {
-    return this.prisma.application.create({ data: dto });
+  async create(dto: CreateApplicationDto) {
+    return this.prisma.$transaction(async (tx) => {
+      const application = await tx.application.create({ data: dto });
+      await tx.timelineEvent.create({
+        data: {
+          applicationId: application.id,
+          status: application.status,
+        },
+      });
+      return application;
+    });
   }
 
   findAll(status?: ApplicationStatus, search?: string) {
