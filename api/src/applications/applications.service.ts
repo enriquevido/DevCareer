@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
+import { ApplicationStatus } from '@prisma/client';
 
 @Injectable()
 export class ApplicationsService {
@@ -12,8 +13,19 @@ export class ApplicationsService {
     return this.prisma.application.create({ data: dto });
   }
 
-  findAll() {
+  findAll(status?: ApplicationStatus, search?: string) {
     return this.prisma.application.findMany({
+      where: {
+        ...(status ? { status } : {}),
+        ...(search
+          ? {
+              OR: [
+                { company: { contains: search, mode: 'insensitive' } },
+                { jobTitle: { contains: search, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
+      },
       orderBy: { createdAt: 'desc' },
       include: { events: true },
     });

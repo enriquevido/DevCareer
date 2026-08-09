@@ -7,11 +7,13 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { ApplicationsService } from './applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
+import { QueryApplicationDto } from './dto/query-application.dto';
 
 @Controller('applications')
 export class ApplicationsController {
@@ -23,8 +25,8 @@ export class ApplicationsController {
   }
 
   @Get()
-  findAll() {
-    return this.applicationsService.findAll();
+  findAll(@Query() query: QueryApplicationDto) {
+    return this.applicationsService.findAll(query.status, query.search);
   }
 
   @Get(':id')
