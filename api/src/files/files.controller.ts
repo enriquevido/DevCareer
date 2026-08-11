@@ -12,16 +12,19 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { createReadStream } from 'node:fs';
 import type { Response } from 'express';
 import { diskStorage } from 'multer';
-import { extname } from 'node:path';
+import { basename, extname } from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { FilesService, UPLOADS_DIR } from './files.service';
 
 @Controller('files')
 export class FilesController {
+  constructor(private readonly filesService: FilesService) {}
+
   @Post('upload')
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
-        destination: './uploads',
+        destination: UPLOADS_DIR,
         filename: (req, file, cb) => {
           cb(null, `${randomUUID()}${extname(file.originalname)}`);
         },
@@ -43,10 +46,11 @@ export class FilesController {
 
   @Get(':filename')
   download(@Param('filename') filename: string, @Res() res: Response) {
-    const stream = createReadStream(`./uploads/${filename}`);
+    const filePath = this.filesService.getFile(filename);
+    const stream = createReadStream(filePath);
     res.set({
       'Content-Type': 'application/pdf',
-      'Content-Disposition': `inline; filename="${filename}"`,
+      'Content-Disposition': `inline; filename="${basename(filePath)}"`,
     });
     stream.pipe(res);
   }
