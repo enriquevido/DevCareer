@@ -525,7 +525,177 @@ la API.
 Criterio de salida: una instalacion limpia puede ejecutar, probar y comprender el proyecto siguiendo
 solo el README.
 
-## 16. Plan de pruebas
+## 16. Estrategia de commits por hito
+
+Cada commit debe representar una sola responsabilidad significativa. El proyecto debe compilar o,
+cuando el commit solo afecte documentacion, conservar el mismo comportamiento anterior. No se deben
+mezclar cambios de dominio, infraestructura, interfaz, pruebas y documentacion en un mismo commit
+cuando puedan revisarse de manera independiente.
+
+Los titulos propuestos siguen Conventional Commits. Pueden ajustarse si durante el desarrollo cambia
+el alcance real, pero nunca deben describir trabajo que el commit no contiene.
+
+### Commits del Hito 1 - Alinear contrato y modelo de datos
+
+1. `docs(plan): redefine project around honest LaTeX CV tailoring`
+   - Versionar este documento con la nueva vision, limites, arquitectura y roadmap.
+   - No incluye cambios ejecutables.
+
+2. `refactor(ai): remove legacy free-form suggestion feature`
+   - Retirar el modulo `ai` actual y su registro en `AppModule`.
+   - Eliminar el uso de la relacion `suggestions` en el servicio de postulaciones.
+   - Retirar `AiSuggestion` del esquema, la migracion correspondiente y los datos del seed.
+   - Dejar el backend compilando antes de introducir el nuevo dominio.
+
+3. `feat(db): add versioned resumes and CV analyses`
+   - Anadir `ResumeVersion`, `CvAnalysis` y `CvAnalysisStatus`.
+   - Crear las relaciones con `Application` y la seleccion opcional del analisis utilizado.
+   - Crear la migracion Prisma sin implementar aun endpoints o logica de IA.
+
+4. `chore(seed): seed the CV tailoring domain`
+   - Adaptar el orden de limpieza a las nuevas llaves foraneas.
+   - Crear una version de CV LaTeX de ejemplo.
+   - Crear postulaciones y analisis coherentes con los nuevos estados.
+
+5. `test(api): cover application persistence regressions`
+   - Cubrir creacion de postulacion y evento inicial dentro de una transaccion.
+   - Cubrir busqueda, filtros, detalle y cambio de estado.
+   - Verificar que retirar `AiSuggestion` no rompa el comportamiento existente.
+
+### Commits del Hito 2 - CV maestro
+
+1. `feat(resumes): validate LaTeX resume uploads`
+   - Crear constantes y validaciones para nombre, extension, tamano, UTF-8 y contenido.
+   - Mantener estas reglas separadas del transporte HTTP y de Prisma.
+
+2. `feat(resumes): persist immutable resume versions`
+   - Crear el servicio de dominio.
+   - Calcular SHA-256, reutilizar duplicados y consultar la version actual.
+   - Impedir actualizaciones destructivas de versiones existentes.
+
+3. `feat(resumes): expose upload and download endpoints`
+   - Crear modulo y controlador.
+   - Implementar carga multipart, consulta de la version actual y descarga de `.tex`.
+   - Registrar el modulo en `AppModule`.
+
+4. `test(resumes): cover upload validation and versioning`
+   - Probar archivos validos, vacios, binarios, demasiado grandes y con extension incorrecta.
+   - Probar deduplicacion por hash y descarga exacta de la fuente.
+
+### Commits del Hito 3 - Analisis estructurado y version derivada
+
+1. `feat(cv-analysis): define structured AI response contract`
+   - Crear tipos, DTOs y validacion de la respuesta JSON.
+   - Definir el prompt de honestidad y la salida esperada.
+   - Mantener la llamada a DeepSeek detras de un servicio reemplazable en pruebas.
+
+2. `feat(cv-analysis): apply deterministic LaTeX replacements`
+   - Implementar el motor puro de reemplazos.
+   - Detectar fragmentos ausentes, repetidos, identicos y solapados.
+   - Producir fuente derivada y resultados de validacion sin acceder a red o base de datos.
+
+3. `feat(cv-analysis): persist analysis lifecycle`
+   - Crear analisis en `PROCESSING`.
+   - Resolver vacante y version del CV.
+   - Persistir recomendaciones, fuente derivada y estados `READY` o `AI_FAILED`.
+
+4. `feat(cv-analysis): expose generation and query endpoints`
+   - Crear modulo y controladores para generar, listar, consultar y descargar la fuente derivada.
+   - Aplicar validacion y respuestas HTTP consistentes.
+
+5. `test(cv-analysis): cover AI failures and replacement rules`
+   - Probar JSON valido, invalido, vacio y truncado.
+   - Probar todas las reglas del motor de reemplazos y las transiciones de estado.
+
+### Commits del Hito 4 - Compilacion Docker
+
+1. `feat(latex): add isolated compilation service`
+   - Crear la imagen y el servidor interno de compilacion.
+   - Aplicar usuario sin privilegios, limites, timeout y `-no-shell-escape`.
+
+2. `chore(docker): register the LaTeX compilation service`
+   - Integrar el servicio en Docker Compose.
+   - Definir red, puerto local, healthcheck y variables de entorno necesarias.
+
+3. `feat(latex): integrate the compilation client`
+   - Crear el cliente NestJS para enviar una fuente y recibir PDF o diagnostico.
+   - Diferenciar fallos de transporte, timeout y errores de compilacion.
+
+4. `feat(cv-analysis): compile and store derived resumes`
+   - Incorporar la compilacion al ciclo de analisis.
+   - Guardar el PDF o marcar `COMPILE_FAILED` conservando la fuente derivada.
+
+5. `feat(cv-analysis): download and select generated resumes`
+   - Exponer descarga de PDF y seleccion explicita del CV de la postulacion.
+   - Validar pertenencia, estado y existencia del archivo.
+
+6. `test(latex): cover compilation and resume selection`
+   - Probar documento valido, documento invalido, timeout y diagnosticos.
+   - Probar seleccion entre postulaciones y requisitos del PDF.
+
+### Commits del Hito 5 - Frontend funcional
+
+1. `chore(web): configure routing and server state`
+   - Configurar React Router, TanStack Query, estructura de rutas y cliente HTTP.
+   - Definir tipos compartidos dentro del frontend.
+
+2. `feat(web): manage the master LaTeX resume`
+   - Crear la vista de carga, version actual, historial y descarga.
+   - Incluir estados vacios, carga, validacion y error.
+
+3. `feat(web): manage job applications`
+   - Crear listado, busqueda, filtros y formularios de alta y edicion.
+   - Mantener las operaciones del tracker independientes del analisis.
+
+4. `feat(web): show application details and timeline`
+   - Crear detalle, estado actual, cambio de estado e historial de eventos.
+   - Mostrar el CV seleccionado y el historial de analisis.
+
+5. `feat(web): review and select CV analyses`
+   - Crear generacion, resumen, brechas, recomendaciones y diff.
+   - Implementar descargas, diagnosticos y confirmacion de seleccion.
+
+6. `test(web): cover responsive application workflows`
+   - Probar los flujos principales, errores, cargas y estados vacios.
+   - Verificar accesibilidad basica y vistas de escritorio y movil.
+
+### Commits del Hito 6 - Calidad y documentacion
+
+1. `test(api): complete service and controller coverage`
+   - Cubrir ramas de error y contratos que no hayan quedado probados en los hitos anteriores.
+
+2. `test(e2e): cover the CV tailoring workflow`
+   - Probar carga, vacante, analisis, compilacion, seleccion y seguimiento de principio a fin.
+
+3. `fix(app): polish validation and error states`
+   - Corregir problemas descubiertos por las pruebas sin introducir nuevas funcionalidades.
+
+4. `docs(readme): document local setup and development workflow`
+   - Reemplazar README de plantilla.
+   - Documentar dependencias, entorno, Docker, migraciones, seed, pruebas y ejecucion.
+
+5. `chore(env): provide safe environment templates`
+   - Crear ejemplos de variables sin secretos.
+   - Revisar reglas de archivos ignorados y artefactos generados.
+
+### Regla de entrega de cada commit
+
+Antes de que el usuario escriba un commit, la IA debe proporcionar:
+
+1. Titulo exacto y responsabilidad unica.
+2. Dependencias respecto de commits anteriores.
+3. Lista exacta de archivos que el usuario creara, modificara o eliminara.
+4. Contenido completo de cada archivo creado o modificado.
+5. Explicacion linea por linea o por bloques triviales claramente delimitados.
+6. Explicacion expresa de cada archivo eliminado y de por que deja de ser necesario.
+7. Comandos manuales de formato, generacion, migracion, pruebas y build.
+8. Resultado esperado y criterio para detenerse si aparece un error.
+9. Comandos para revisar el diff y preparar exclusivamente los archivos del commit.
+10. Comando de commit y comprobacion final con `git show`.
+
+No se comenzara el siguiente commit hasta que el usuario haya escrito y verificado el anterior.
+
+## 17. Plan de pruebas
 
 ### CV maestro
 
@@ -582,7 +752,7 @@ solo el README.
 - Confirma la seleccion del CV.
 - Funciona en escritorio y movil.
 
-## 17. Mecanica de desarrollo guiado
+## 18. Mecanica de desarrollo guiado
 
 El proyecto se desarrollara un hito por turno.
 
@@ -599,11 +769,27 @@ Cada entrega debe seguir este orden:
 9. Casos de prueba manuales y automatizados.
 10. Criterio claro para considerar terminado el hito antes de avanzar.
 
-La IA proporciona la guia y el codigo completo, pero el usuario escribe y ejecuta los cambios para
-entender el proyecto. No se modificara codigo automaticamente cuando la solicitud sea una leccion de
-desarrollo guiado.
+### Propiedad de la implementacion
 
-## 18. Convenciones
+- La IA nunca creara, editara, eliminara, movera ni formateara archivos de codigo del proyecto.
+- La IA nunca ejecutara migraciones, seeds, generadores, instalaciones, commits ni comandos que
+  implementen cambios por cuenta del usuario.
+- La IA puede inspeccionar archivos y ejecutar comprobaciones de solo lectura para entender el estado
+  del repositorio y preparar una guia correcta.
+- La IA entregara codigo completo y explicaciones, pero siempre como texto para que el usuario lo
+  escriba manualmente.
+- El usuario es el unico responsable de aplicar el codigo, ejecutar los comandos de implementacion,
+  revisar el diff y crear cada commit.
+- La IA solo podra modificar `PLAN.md` cuando el usuario lo solicite expresamente; esta excepcion no
+  autoriza cambios en codigo, configuracion, migraciones, pruebas ni documentacion adicional.
+- Si el usuario pide accidentalmente a la IA que implemente codigo, la IA recordara esta regla y
+  convertira la solicitud en una guia manual, salvo que el usuario cambie expresamente esta politica
+  dentro de `PLAN.md`.
+
+El objetivo es que el usuario comprenda y escriba cada cambio, no solo que obtenga un resultado
+funcional.
+
+## 19. Convenciones
 
 - Codigo, identificadores, comentarios y mensajes tecnicos en ingles.
 - Explicaciones de desarrollo y justificaciones de IA en espanol.
@@ -617,7 +803,7 @@ desarrollo guiado.
 - Una responsabilidad principal por modulo.
 - Pruebas proporcionales al riesgo antes de continuar al siguiente hito.
 
-## 19. Mejoras posteriores al MVP
+## 20. Mejoras posteriores al MVP
 
 - Proyectos LaTeX completos mediante ZIP seguro.
 - Aceptacion o rechazo individual de sugerencias desde la UI.
@@ -629,4 +815,3 @@ desarrollo guiado.
 - Perfil de empresas y deteccion de duplicados.
 - Almacenamiento cloud.
 - Autenticacion y soporte multiusuario.
-
