@@ -33,7 +33,6 @@ model Application {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   events      TimelineEvent[]
-  suggestions AiSuggestion[]
 }
 
 model TimelineEvent {
@@ -43,13 +42,4 @@ model TimelineEvent {
   status        ApplicationStatus
   note          String?
   createdAt     DateTime          @default(now())
-}
-
-model AiSuggestion {
-  id            String      @id @default(cuid())
-  applicationId String
-  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  type          String
-  content       String
-  createdAt     DateTime    @default(now())
 }

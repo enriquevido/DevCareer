@@ -12,12 +12,14 @@ export class ApplicationsService {
   async create(dto: CreateApplicationDto) {
     return this.prisma.$transaction(async (tx) => {
       const application = await tx.application.create({ data: dto });
+
       await tx.timelineEvent.create({
         data: {
           applicationId: application.id,
           status: application.status,
         },
       });
+
       return application;
     });
   }
@@ -43,7 +45,7 @@ export class ApplicationsService {
   findOne(id: string) {
     return this.prisma.application.findUnique({
       where: { id },
-      include: { events: true, suggestions: true },
+      include: { events: true },
     });
   }
 
@@ -51,14 +53,20 @@ export class ApplicationsService {
     const application = await this.prisma.application.findUnique({
       where: { id },
     });
+
     if (!application) return null;
-    return this.prisma.application.update({ where: { id }, data: dto });
+
+    return this.prisma.application.update({
+      where: { id },
+      data: dto,
+    });
   }
 
   async changeStatus(id: string, dto: UpdateStatusDto) {
     const application = await this.prisma.application.findUnique({
       where: { id },
     });
+
     if (!application) return null;
 
     return this.prisma.$transaction([

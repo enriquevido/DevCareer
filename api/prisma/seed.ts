@@ -4,7 +4,6 @@ const prisma = new PrismaClient();
 
 async function main() {
   await prisma.timelineEvent.deleteMany();
-  await prisma.aiSuggestion.deleteMany();
   await prisma.application.deleteMany();
 
   await prisma.application.create({
@@ -220,16 +219,6 @@ async function main() {
             status: 'CLOSED',
             note: 'Declined offer: accepted another internship',
             createdAt: new Date('2026-06-25T10:30:00Z'),
-          },
-        ],
-      },
-      suggestions: {
-        create: [
-          {
-            type: 'resume_match',
-            content:
-              'Strong match on API-related experience. Highlight the payment integration project from the previous internship in the CV summary.',
-            createdAt: new Date('2026-05-20T09:00:00Z'),
           },
         ],
       },
