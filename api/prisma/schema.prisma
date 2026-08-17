@@ -17,22 +17,33 @@ enum ApplicationStatus {
   CLOSED
 }
 
+enum CvAnalysisStatus {
+  PROCESSING
+  READY
+  AI_FAILED
+  COMPILE_FAILED
+}
+
 model Application {
-  id          String            @id @default(cuid())
-  company     String
-  jobTitle    String
-  jobUrl      String?
-  description String?
-  location    String?
-  isRemote    Boolean           @default(false)
-  salaryRange String?
-  source      String?
-  notes       String?
-  cvFile      String?
-  status      ApplicationStatus @default(DRAFT)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  events      TimelineEvent[]
+  id                   String            @id @default(cuid())
+  company              String
+  jobTitle             String
+  jobUrl               String?
+  description          String?
+  location             String?
+  isRemote             Boolean           @default(false)
+  salaryRange          String?
+  source               String?
+  notes                String?
+  cvFile               String?
+  status               ApplicationStatus @default(DRAFT)
+  selectedCvAnalysisId String?           @unique
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  events             TimelineEvent[]
+  cvAnalyses         CvAnalysis[]    @relation("ApplicationCvAnalyses")
+  selectedCvAnalysis CvAnalysis?     @relation("selectedCvAnalysis", fields: [selectedCvAnalysisId], references: [id], onDelete: SetNull)
 }
 
 model TimelineEvent {
@@ -42,4 +53,37 @@ model TimelineEvent {
   status        ApplicationStatus
   note          String?
   createdAt     DateTime          @default(now())
+}
+
+model ResumeVersion {
+  id           String       @id @default(cuid())
+  originalName String
+  source       String
+  sha256       String       @unique
+  createdAt    DateTime     @default(now())
+  analyses     CvAnalysis[]
+
+  @@index([createdAt])
+}
+
+model CvAnalysis {
+  id              String           @id @default(cuid())
+  applicationId   String
+  resumeVersionId String
+  status          CvAnalysisStatus @default(PROCESSING)
+  model           String
+  summaryEs       String?
+  recommendations Json?
+  derivedSource   String?
+  compiledPdfFile String?
+  errorMessage    String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  application   Application   @relation("ApplicationCvAnalyses", fields: [applicationId], references: [id], onDelete: Cascade)
+  resumeVersion ResumeVersion @relation(fields: [resumeVersionId], references: [id], onDelete: Restrict)
+  selectedBy    Application?  @relation("selectedCvAnalysis")
+
+  @@index([applicationId, createdAt])
+  @@index([resumeVersionId])
 }
