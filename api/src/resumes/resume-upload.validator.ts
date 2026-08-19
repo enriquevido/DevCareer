@@ -2,7 +2,7 @@ import { extname } from 'node:path';
 import { TextDecoder } from 'node:util';
 import {
   LATEX_RESUME_EXTENSION,
-  MAX_RESUME_FILE_SYZE_BYTES,
+  MAX_RESUME_FILE_SIZE_BYTES,
   MAX_RESUME_FILE_NAME_LENGTH,
   REQUIRED_LATEX_MARKERS,
 } from './resume-upload.constants';
@@ -123,10 +123,10 @@ function validateFileSize(buffer: Buffer): void {
     );
   }
 
-  if (buffer.byteLength > MAX_RESUME_FILE_SYZE_BYTES) {
+  if (buffer.byteLength > MAX_RESUME_FILE_SIZE_BYTES) {
     throw new ResumeUploadValidationError(
       ResumeUploadErrorCode.FILE_TOO_LARGE,
-      `Resume file must not exceed ${MAX_RESUME_FILE_SYZE_BYTES} bytes.`,
+      `Resume file must not exceed ${MAX_RESUME_FILE_SIZE_BYTES} bytes.`,
     );
   }
 }
