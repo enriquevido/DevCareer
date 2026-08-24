@@ -14,6 +14,18 @@ import { buildCvAnalysisMessage } from './cv-analysis.prompt';
 import { parseCvAnalysisResponse } from './cv-analysis-response.validator';
 import { applyLatexReplacements } from './latex-replacement.engine';
 
+const CV_ANALYSIS_LIST_SELECT = {
+  id: true,
+  applicationId: true,
+  resumeVersionId: true,
+  status: true,
+  model: true,
+  summaryEs: true,
+  errorMessage: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
 @Injectable()
 export class CvAnalysesService {
   constructor(
@@ -107,6 +119,61 @@ export class CvAnalysesService {
     } catch (error: unknown) {
       return this.markAsAiFailed(analysis.id, getErrorMessage(error));
     }
+  }
+
+  async findAllByApplication(applicationId: string) {
+    const application = await this.prisma.application.findUnique({
+      where: { id: applicationId },
+      select: { id: true },
+    });
+
+    if (!application) {
+      throw new NotFoundException('Application not found.');
+    }
+
+    return this.prisma.cvAnalysis.findMany({
+      where: { applicationId },
+      orderBy: { createdAt: 'desc' },
+      select: CV_ANALYSIS_LIST_SELECT,
+    });
+  }
+
+  findOne(id: string) {
+    return this.prisma.cvAnalysis.findUnique({
+      where: { id },
+      include: {
+        application: {
+          select: {
+            id: true,
+            company: true,
+            jobTitle: true,
+          },
+        },
+        resumeVersion: {
+          select: {
+            id: true,
+            originalName: true,
+            sha256: true,
+            createdAt: true,
+          },
+        },
+      },
+    });
+  }
+
+  findDerivedSource(id: string) {
+    return this.prisma.cvAnalysis.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        derivedSource: true,
+        resumeVersion: {
+          select: {
+            originalName: true,
+          },
+        },
+      },
+    });
   }
 
   private markAsAiFailed(analysisId: string, errorMessage: string) {
