@@ -8,6 +8,8 @@ export type CvAnalysisProviderResponse = {
 };
 
 export interface CvAnalysisProvider {
+  readonly model: string;
+
   generate(
     messages: readonly CvAnalysisMessage[],
   ): Promise<CvAnalysisProviderResponse>;
