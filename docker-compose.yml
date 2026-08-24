@@ -10,6 +10,52 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - job-tracker-internal
+
+  latex-compiler:
+    build:
+      context: ./latex-service
+      dockerfile: Dockerfile
+    image: job-tracker-latex-service:latest
+    container_name: job-tracker-latex-compiler
+    environment:
+      PORT: 3001
+      LATEX_MAX_SOURCE_BYTES: 524288
+      LATEX_MAX_PDF_BYTES: 5242880
+      LATEX_TIMEOUT_MS: 15000
+      LATEX_MAX_CONCURRENCY: 2
+    ports:
+      - "127.0.0.1:3001:3001"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,nodev,size=64m,uid=1000,gid=1000,mode=0700
+    cap_drop:
+        - ALL
+    security_opt:
+        - no-new-privileges:true
+    pids_limit: 64
+    mem_limit: 512m
+    cpus: 1.0
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/health').then(response => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1));",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    networks:
+      - job-tracker-internal
 
 volumes:
   pgdata:
+
+networks:
+  job-tracker-internal:
+    driver: bridge
