@@ -7,6 +7,7 @@ import { CvAnalysesModule } from './cv-analyses/cv-analyses.module';
 import { FilesModule } from './files/files.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ResumesModule } from './resumes/resumes.module';
+import { LatexModule } from './latex/latex.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ResumesModule } from './resumes/resumes.module';
     FilesModule,
     ResumesModule,
     CvAnalysesModule,
+    LatexModule,
   ],
   controllers: [AppController],
   providers: [AppService],
