@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { UnprocessableEntityException } from '@nestjs/common';
 import { CvAnalysisStatus } from '@prisma/client';
+import { CompiledPdfStorage } from '../latex/compiled-pdf.storage';
+import { LatexCompilationClient } from '../latex/latex-compilation.client';
 import { PrismaService } from '../prisma/prisma.service';
 import type { CvAnalysisProvider } from './cv-analysis-provider';
 import { CvAnalysesService } from './cv-analyses.service';
@@ -29,12 +31,25 @@ const createProviderMock = () => ({
   generate: createAsyncMock(),
 });
 
+const createLatexClientMock = () => ({
+  compile: createAsyncMock(),
+});
+
+const createCompiledPdfStorageMock = () => ({
+  store: createAsyncMock(),
+  remove: createAsyncMock(),
+});
+
 type PrismaMock = ReturnType<typeof createPrismaMock>;
 type ProviderMock = ReturnType<typeof createProviderMock>;
+type LatexClientMock = ReturnType<typeof createLatexClientMock>;
+type CompiledPdfStorageMock = ReturnType<typeof createCompiledPdfStorageMock>;
 
 describe('CvAnalysesService', () => {
   let prisma: PrismaMock;
   let provider: ProviderMock;
+  let latexClient: LatexClientMock;
+  let compiledPdfStorage: CompiledPdfStorageMock;
   let service: CvAnalysesService;
 
   const application = {
@@ -47,13 +62,17 @@ describe('CvAnalysesService', () => {
   const resumeVersion = {
     id: 'resume-1',
     source: String.raw`\begin{document}
-  Built TypeScript APIs for internal services.
-  \end{document}`,
+    Built TypeScript APIs for internal services.
+    \end{document}`,
   };
 
   const processingAnalysis = {
     id: 'analysis-1',
   };
+
+  const compiledPdf = Buffer.from('%PDF-test', 'utf8');
+
+  const compiledPdfFile = 'generated-cvs/analysis.pdf';
 
   const providerResult = {
     summaryEs: 'El CV contiene experiencia relevante en TypeScript.',
@@ -71,18 +90,32 @@ describe('CvAnalysesService', () => {
     ],
   };
 
+  const derivedSource = String.raw`\begin{document}
+    Built internal service APIs with TypeScript.
+    \end{document}`;
+
   beforeEach(() => {
     prisma = createPrismaMock();
     provider = createProviderMock();
+    latexClient = createLatexClientMock();
+    compiledPdfStorage = createCompiledPdfStorageMock();
 
     service = new CvAnalysesService(
       prisma as unknown as PrismaService,
       provider as unknown as CvAnalysisProvider,
+      latexClient as unknown as LatexCompilationClient,
+      compiledPdfStorage as unknown as CompiledPdfStorage,
     );
 
     prisma.application.findUnique.mockResolvedValue(application);
     prisma.resumeVersion.findUnique.mockResolvedValue(resumeVersion);
     prisma.cvAnalysis.create.mockResolvedValue(processingAnalysis);
+
+    latexClient.compile.mockResolvedValue({
+      ok: true,
+      pdf: compiledPdf,
+    });
+    compiledPdfStorage.store.mockResolvedValue(compiledPdfFile);
   });
 
   it('persists PROCESSING before requesting the analysis', async () => {
@@ -114,7 +147,7 @@ describe('CvAnalysesService', () => {
     );
   });
 
-  it('persists the derived source and transitions to READY', async () => {
+  it('compiles, stores and persists a READY analysis', async () => {
     provider.generate.mockResolvedValue({
       model: 'deepseek-v4-flash-202608',
       content: JSON.stringify(providerResult),
@@ -123,18 +156,22 @@ describe('CvAnalysesService', () => {
     const readyAnalysis = {
       id: processingAnalysis.id,
       status: CvAnalysisStatus.READY,
+      compiledPdfFile,
     };
 
     prisma.cvAnalysis.update.mockResolvedValue(readyAnalysis);
 
     const result = await service.generate(application.id, resumeVersion.id);
 
+    expect(latexClient.compile).toHaveBeenCalledWith(derivedSource);
+
+    expect(compiledPdfStorage.store).toHaveBeenCalledWith(compiledPdf);
+
     expect(prisma.cvAnalysis.update).toHaveBeenCalledWith({
       where: {
         id: processingAnalysis.id,
       },
       data: {
-        status: CvAnalysisStatus.READY,
         model: 'deepseek-v4-flash-202608',
         summaryEs: providerResult.summaryEs,
         recommendations: {
@@ -149,12 +186,13 @@ describe('CvAnalysesService', () => {
             },
           ],
         },
-        derivedSource: String.raw`\begin{document}
-  Built internal service APIs with TypeScript.
-  \end{document}`,
+        derivedSource,
+        status: CvAnalysisStatus.READY,
+        compiledPdfFile,
         errorMessage: null,
       },
     });
+
     expect(result).toEqual(readyAnalysis);
   });
 
@@ -180,6 +218,9 @@ describe('CvAnalysesService', () => {
         errorMessage: 'DeepSeek unavailable.',
       },
     });
+
+    expect(latexClient.compile).not.toHaveBeenCalled();
+    expect(compiledPdfStorage.store).not.toHaveBeenCalled();
     expect(result).toEqual(failedAnalysis);
   });
 
@@ -205,6 +246,9 @@ describe('CvAnalysesService', () => {
         errorMessage: 'AI response must not be empty.',
       },
     });
+
+    expect(latexClient.compile).not.toHaveBeenCalled();
+    expect(compiledPdfStorage.store).not.toHaveBeenCalled();
   });
 
   it('does not create an analysis without a job description', async () => {
@@ -219,5 +263,7 @@ describe('CvAnalysesService', () => {
 
     expect(prisma.cvAnalysis.create).not.toHaveBeenCalled();
     expect(provider.generate).not.toHaveBeenCalled();
+    expect(latexClient.compile).not.toHaveBeenCalled();
+    expect(compiledPdfStorage.store).not.toHaveBeenCalled();
   });
 });

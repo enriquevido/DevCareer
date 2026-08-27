@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
+import { LatexModule } from '../latex/latex.module';
 import { CV_ANALYSIS_PROVIDER } from './cv-analysis-provider';
 import { CvAnalysesController } from './cv-analyses.controller';
 import { CvAnalysesService } from './cv-analyses.service';
 import { DeepSeekCvAnalysisProvider } from './deepseek-cv-analysis.provider';
 
 @Module({
+  imports: [LatexModule],
   controllers: [CvAnalysesController],
   providers: [
     CvAnalysesService,

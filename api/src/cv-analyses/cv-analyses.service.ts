@@ -4,15 +4,26 @@ import {
   NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
-import { CvAnalysisStatus } from '@prisma/client';
+import { CvAnalysisStatus, type Prisma } from '@prisma/client';
+import { CompiledPdfStorage } from '../latex/compiled-pdf.storage';
+import { LatexCompilationClient } from '../latex/latex-compilation.client';
+import type {
+  LatexCompilationFailure,
+  LatexCompilationResult,
+} from '../latex/latex-compilation.types';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   CV_ANALYSIS_PROVIDER,
   type CvAnalysisProvider,
+  type CvAnalysisProviderResponse,
 } from './cv-analysis-provider';
 import { buildCvAnalysisMessage } from './cv-analysis.prompt';
 import { parseCvAnalysisResponse } from './cv-analysis-response.validator';
-import { applyLatexReplacements } from './latex-replacement.engine';
+import type { CvAnalysisResult } from './cv-analysis.types';
+import {
+  applyLatexReplacements,
+  type LatexReplacementResult,
+} from './latex-replacement.engine';
 
 const CV_ANALYSIS_LIST_SELECT = {
   id: true,
@@ -26,12 +37,21 @@ const CV_ANALYSIS_LIST_SELECT = {
   updatedAt: true,
 } as const;
 
+type GeneratedAnalysisData = {
+  model: string;
+  summaryEs: string;
+  recommendations: Prisma.InputJsonObject;
+  derivedSource: string;
+};
+
 @Injectable()
 export class CvAnalysesService {
   constructor(
     private readonly prisma: PrismaService,
     @Inject(CV_ANALYSIS_PROVIDER)
     private readonly provider: CvAnalysisProvider,
+    private readonly latexClient: LatexCompilationClient,
+    private readonly compiledPdfStorage: CompiledPdfStorage,
   ) {}
 
   async generate(applicationId: string, resumeVersionId: string) {
@@ -83,8 +103,12 @@ export class CvAnalysesService {
       },
     });
 
+    let providerResponse: CvAnalysisProviderResponse;
+    let result: CvAnalysisResult;
+    let replacementResult: LatexReplacementResult;
+
     try {
-      const providerResponse = await this.provider.generate(
+      providerResponse = await this.provider.generate(
         buildCvAnalysisMessage({
           company: application.company,
           jobTitle: application.jobTitle,
@@ -93,31 +117,80 @@ export class CvAnalysesService {
         }),
       );
 
-      const result = parseCvAnalysisResponse(providerResponse.content);
+      result = parseCvAnalysisResponse(providerResponse.content);
 
-      const replacementResult = applyLatexReplacements(
+      replacementResult = applyLatexReplacements(
         resumeVersion.source,
         result.recommendations,
       );
+    } catch (error: unknown) {
+      return this.markAsAiFailed(analysis.id, getErrorMessage(error));
+    }
 
+    const generatedData: GeneratedAnalysisData = {
+      model: providerResponse.model,
+      summaryEs: result.summaryEs,
+      recommendations: {
+        matchedKeywords: result.matchedKeywords,
+        missingKeywords: result.missingKeywords,
+        warningsEs: result.warningsEs,
+        items: replacementResult.recommendations,
+      },
+      derivedSource: replacementResult.derivedSource,
+    };
+
+    let compilationResult: LatexCompilationResult;
+
+    try {
+      compilationResult = await this.latexClient.compile(
+        generatedData.derivedSource,
+      );
+    } catch (error: unknown) {
+      return this.markAsCompileFailed(
+        analysis.id,
+        generatedData,
+        `Unexpected compilation error: ${getErrorMessage(error)}`,
+      );
+    }
+
+    if (!compilationResult.ok) {
+      return this.markAsCompileFailed(
+        analysis.id,
+        generatedData,
+        formatCompilationFailure(compilationResult),
+      );
+    }
+
+    let compiledPdfFile: string;
+
+    try {
+      compiledPdfFile = await this.compiledPdfStorage.store(
+        compilationResult.pdf,
+      );
+    } catch (error: unknown) {
+      return this.markAsCompileFailed(
+        analysis.id,
+        generatedData,
+        `Could not store compiled PDF: ${getErrorMessage(error)}`,
+      );
+    }
+
+    try {
       return await this.prisma.cvAnalysis.update({
         where: { id: analysis.id },
         data: {
+          ...generatedData,
           status: CvAnalysisStatus.READY,
-          model: providerResponse.model,
-          summaryEs: result.summaryEs,
-          recommendations: {
-            matchedKeywords: result.matchedKeywords,
-            missingKeywords: result.missingKeywords,
-            warningsEs: result.warningsEs,
-            items: replacementResult.recommendations,
-          },
-          derivedSource: replacementResult.derivedSource,
+          compiledPdfFile,
           errorMessage: null,
         },
       });
     } catch (error: unknown) {
-      return this.markAsAiFailed(analysis.id, getErrorMessage(error));
+      await this.compiledPdfStorage
+        .remove(compiledPdfFile)
+        .catch(() => undefined);
+
+      throw error;
     }
   }
 
@@ -185,6 +258,32 @@ export class CvAnalysesService {
       },
     });
   }
+
+  private markAsCompileFailed(
+    analysisId: string,
+    generatedData: GeneratedAnalysisData,
+    errorMessage: string,
+  ) {
+    return this.prisma.cvAnalysis.update({
+      where: { id: analysisId },
+      data: {
+        ...generatedData,
+        status: CvAnalysisStatus.COMPILE_FAILED,
+        compiledPdfFile: null,
+        errorMessage,
+      },
+    });
+  }
+}
+
+function formatCompilationFailure(failure: LatexCompilationFailure): string {
+  const summary = `[${failure.code}] ${failure.message}`;
+
+  if (!failure.diagnostic) {
+    return summary;
+  }
+
+  return `${summary}\n${failure.diagnostic}`;
 }
 
 function getErrorMessage(error: unknown): string {
@@ -192,5 +291,5 @@ function getErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return 'Unknown AI analysis error.';
+  return 'Unknown error.';
 }
