@@ -1,4 +1,5 @@
 import {
+  ConflictException,
   Inject,
   Injectable,
   NotFoundException,
@@ -245,6 +246,85 @@ export class CvAnalysesService {
             originalName: true,
           },
         },
+      },
+    });
+  }
+
+  findCompiledPdf(id: string) {
+    return this.prisma.cvAnalysis.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        status: true,
+        compiledPdfFile: true,
+        resumeVersion: {
+          select: {
+            originalName: true,
+          },
+        },
+      },
+    });
+  }
+
+  async select(applicationId: string, analysisId: string) {
+    const [application, analysis] = await Promise.all([
+      this.prisma.application.findUnique({
+        where: { id: applicationId },
+        select: { id: true },
+      }),
+      this.prisma.cvAnalysis.findUnique({
+        where: { id: analysisId },
+        select: {
+          id: true,
+          applicationId: true,
+          status: true,
+          compiledPdfFile: true,
+        },
+      }),
+    ]);
+
+    if (!application) {
+      throw new NotFoundException('Application not found.');
+    }
+
+    if (!analysis) {
+      throw new NotFoundException('CV analysis not found.');
+    }
+
+    if (analysis.applicationId !== application.id) {
+      throw new UnprocessableEntityException(
+        'CV analysis does not belong to this application.',
+      );
+    }
+
+    if (
+      analysis.status !== CvAnalysisStatus.READY ||
+      !analysis.compiledPdfFile
+    ) {
+      throw new ConflictException(
+        'Only a READY analysis with a compiled PDF can be selected.',
+      );
+    }
+
+    try {
+      this.compiledPdfStorage.getFile(analysis.compiledPdfFile);
+    } catch (error: unknown) {
+      if (error instanceof NotFoundException) {
+        throw new ConflictException('Compiled PDF is not available.');
+      }
+
+      throw error;
+    }
+
+    return this.prisma.application.update({
+      where: { id: application.id },
+      data: {
+        selectedCvAnalysisId: analysis.id,
+      },
+      select: {
+        id: true,
+        selectedCvAnalysisId: true,
+        updatedAt: true,
       },
     });
   }
