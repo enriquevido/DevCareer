@@ -1,1 +1,69 @@
 @import "tailwindcss";
+
+@theme {
+--color-paper: #f5f0e5;
+--color-paper-deep: #eae4d8;
+--color-ink: #1d1c19;
+--color-ink-soft: #696359;
+--color-line: #c9c0b2;
+--color-line-strong: #8f887d;
+--color-signal: #c94b34;
+--color-signal-dark: #8d3021;
+--color-signal-light: #ff8068;
+--color-rail-line: #4e4b45;
+--color-rail-muted: #aaa59c;
+--color-rail-text: #bbb6ac;
+--color-rail-index: #7e7971;
+
+--font-display: "Iowan Old Style", Baskerville, "Times New Roman", serif;
+--font-body: "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
+--font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+--animate-reveal-content: reveal-content 320ms ease-out both;
+
+@keyframes reveal-content {
+    from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+    }
+
+    to {
+    opacity: 1;
+    transform: translateY(0);
+    }
+}
+}
+
+@layer base {
+html {
+    min-width: 320px;
+    min-height: 100%;
+    color-scheme: light;
+    background: var(--color-paper-deep);
+}
+
+body {
+    min-width: 320px;
+    min-height: 100vh;
+    margin: 0;
+    color: var(--color-ink);
+    background: var(--color-paper-deep);
+    font-family: var(--font-body);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+}
+
+#root {
+    min-height: 100vh;
+}
+
+::selection {
+    color: var(--color-paper);
+    background: var(--color-signal-dark);
+}
+
+:focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 4px;
+}
+}
