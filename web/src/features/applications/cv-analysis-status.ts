@@ -15,13 +15,14 @@ type CvAnalysisArtifactState = Pick<
 const CV_ANALYSIS_STATUS_PRESENTATION = {
   PROCESSING: {
     label: "En proceso",
-    description: "El análisis y la compilación siguen en curso.",
+    description: "El análisis y la generación del documento siguen en curso.",
     badgeClassName: "border-warning/40 bg-warning/10 text-warning",
     dotClassName: "bg-warning",
   },
   READY: {
     label: "Listo",
-    description: "El resultado y el PDF están disponibles.",
+    description:
+      "El resultado cumple las validaciones y el PDF está disponible.",
     badgeClassName: "border-success/40 bg-success/10 text-success",
     dotClassName: "bg-success",
   },
@@ -32,8 +33,9 @@ const CV_ANALYSIS_STATUS_PRESENTATION = {
     dotClassName: "bg-danger",
   },
   COMPILE_FAILED: {
-    label: "Falló la compilación",
-    description: "El análisis terminó, pero no pudo generarse el PDF.",
+    label: "PDF no disponible",
+    description:
+      "El resultado existe, pero la compilación o validación final no produjo un PDF utilizable.",
     badgeClassName: "border-danger/40 bg-danger/10 text-danger",
     dotClassName: "bg-danger",
   },

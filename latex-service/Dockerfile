@@ -6,6 +6,7 @@ RUN apt-get update \
     texlive-latex-recommended \
     texlive-latex-extra \
     texlive-fonts-recommended \
+    poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

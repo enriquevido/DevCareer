@@ -26,6 +26,17 @@ export async function handleCompile(request, response) {
         message: "LaTeX compilation timed out.",
         diagnostic: result.diagnostic,
       });
+
+      return;
+    }
+
+    if (result.kind === "page_limit_exceeded") {
+      sendJson(response, 422, {
+        code: "LATEX_PAGE_LIMIT_EXCEEDED",
+        message: "Generated CV exceeds the one-page limit.",
+        diagnostic: `Generated PDF has ${result.pageCount} pages; the maximum allowed is ${result.maxPages}.`,
+      });
+
       return;
     }
 
@@ -35,6 +46,7 @@ export async function handleCompile(request, response) {
         message: "LaTeX compilation failed.",
         diagnostic: result.diagnostic,
       });
+
       return;
     }
 

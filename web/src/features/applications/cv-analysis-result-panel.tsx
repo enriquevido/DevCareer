@@ -225,7 +225,7 @@ export function CvAnalysisResultPanel({
       {analysis.status === "COMPILE_FAILED" && errorMessage ? (
         <AnalysisDiagnostic
           message={errorMessage}
-          title="Diagnóstico de compilación"
+          title="Diagnóstico del documento"
         />
       ) : null}
     </section>

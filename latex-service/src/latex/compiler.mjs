@@ -3,10 +3,15 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { MAX_PDF_BYTES } from "../config.mjs";
 import { runPdflatex } from "./pdflatex.mjs";
+import { readPdfPageCount } from "./pdfinfo.mjs";
+
+const MAX_PDF_PAGES = 1;
 
 export async function compileLatex(source) {
   const workDirectory = await mkdtemp(join(tmpdir(), "latex-compile-"));
+
   const inputFile = join(workDirectory, "resume.tex");
+
   const outputFile = join(workDirectory, "resume.pdf");
 
   try {
@@ -83,5 +88,32 @@ async function validateOutputFile(outputFile, diagnostic) {
     };
   }
 
+  let pageCount;
+
+  try {
+    pageCount = await readPdfPageCount(outputFile);
+  } catch (error) {
+    return {
+      kind: "failed",
+      diagnostic: `Could not validate the generated PDF page count: ${getErrorMessage(error)}`,
+    };
+  }
+
+  if (pageCount > MAX_PDF_PAGES) {
+    return {
+      kind: "page_limit_exceeded",
+      pageCount,
+      maxPages: MAX_PDF_PAGES,
+    };
+  }
+
   return null;
+}
+
+function getErrorMessage(error) {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return "Unknown page count validation error.";
 }

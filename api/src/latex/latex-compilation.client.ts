@@ -133,6 +133,20 @@ export class LatexCompilationClient {
 
     if (
       response.status === 422 &&
+      serviceError.code === 'LATEX_PAGE_LIMIT_EXCEEDED'
+    ) {
+      return {
+        ok: false,
+        code: LatexCompilationFailureCode.PAGE_LIMIT_EXCEEDED,
+        message:
+          serviceError.message ?? 'Generated CV exceeds the one-page limit.',
+        diagnostic: serviceError.diagnostic,
+        statusCode: response.status,
+      };
+    }
+
+    if (
+      response.status === 422 &&
       serviceError.code === 'LATEX_COMPILE_FAILED'
     ) {
       return {
