@@ -6,14 +6,20 @@ import { ApplicationStatusBadge } from "./application-status-badge";
 
 type ApplicationDetailHeaderProps = {
   application: ApplicationRecord;
+  isGenerateActionDisabled?: boolean;
+  isGeneratingAnalysis?: boolean;
   isStatusActionDisabled?: boolean;
   onChangeStatus: () => void;
+  onGenerateAnalysis?: () => void;
 };
 
 export function ApplicationDetailHeader({
   application,
+  isGenerateActionDisabled = false,
+  isGeneratingAnalysis = false,
   isStatusActionDisabled = false,
   onChangeStatus,
+  onGenerateAnalysis,
 }: ApplicationDetailHeaderProps) {
   const safeJobUrl = getSafeApplicationUrl(application.jobUrl);
 
@@ -71,7 +77,7 @@ export function ApplicationDetailHeader({
           ) : null}
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           <Link
             className={[
               "inline-flex",
@@ -98,6 +104,41 @@ export function ApplicationDetailHeader({
           >
             Editar
           </Link>
+
+          {onGenerateAnalysis ? (
+            <button
+              className={[
+                "inline-flex",
+                "h-9",
+                "items-center",
+                "justify-center",
+                "rounded-sm",
+                "border",
+                "border-line-strong",
+                "bg-transparent",
+                "px-3",
+                "text-sm",
+                "font-medium",
+                "text-foreground",
+                "transition-colors",
+                "duration-150",
+                "hover:bg-surface-hover",
+                "focus-visible:outline-none",
+                "focus-visible:ring-2",
+                "focus-visible:ring-accent",
+                "disabled:cursor-not-allowed",
+                "disabled:opacity-50",
+                "motion-reduce:transition-none",
+              ].join(" ")}
+              disabled={isGenerateActionDisabled || isGeneratingAnalysis}
+              onClick={onGenerateAnalysis}
+              type="button"
+            >
+              {isGeneratingAnalysis
+                ? "Generando análisis…"
+                : "Generar análisis"}
+            </button>
+          ) : null}
 
           <button
             className={[

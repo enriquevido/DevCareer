@@ -25,6 +25,7 @@ import {
   cvAnalysisQueryKeys,
   fetchApplicationCvAnalyses,
 } from "./cv-analysis-api";
+import { useGenerateApplicationCvAnalysis } from "./use-generate-application-cv-analysis";
 
 const EMPTY_ANALYSES: readonly CvAnalysisSummary[] = [];
 
@@ -183,6 +184,13 @@ export function ApplicationDetailPage() {
     },
   });
 
+  const hasDescription = Boolean(applicationQuery.data?.description?.trim());
+
+  const generation = useGenerateApplicationCvAnalysis({
+    applicationId,
+    hasDescription,
+  });
+
   function openStatusDialog(): void {
     statusMutation.reset();
     setIsStatusDialogOpen(true);
@@ -256,9 +264,34 @@ export function ApplicationDetailPage() {
       <div className="w-full min-w-0">
         <ApplicationDetailHeader
           application={application}
-          isStatusActionDisabled={statusMutation.isPending}
+          isGenerateActionDisabled={statusMutation.isPending}
+          isGeneratingAnalysis={generation.isGeneratingAnalysis}
+          isStatusActionDisabled={
+            statusMutation.isPending || generation.isGeneratingAnalysis
+          }
           onChangeStatus={openStatusDialog}
+          onGenerateAnalysis={
+            generation.canGenerateAnalysis
+              ? generation.generateAnalysis
+              : undefined
+          }
         />
+
+        {generation.generationErrorMessage ? (
+          <p
+            className="mt-4 border-l-2 border-danger pl-3 text-sm leading-6 text-danger"
+            role="alert"
+          >
+            {generation.generationErrorMessage}
+          </p>
+        ) : generation.availabilityMessage ? (
+          <p
+            aria-live="polite"
+            className="mt-4 border-l-2 border-line-strong pl-3 text-sm leading-6 text-foreground-muted"
+          >
+            {generation.availabilityMessage}
+          </p>
+        ) : null}
 
         <div
           className={[
