@@ -1,5 +1,6 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import { AppShell } from "./components/app-shell";
+import { ResumePage } from "./features/resume/resume-page";
 import { RoutePlaceholder } from "./pages/route-placeholder";
 
 export const router = createBrowserRouter([
@@ -57,14 +58,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "resume",
-        element: (
-          <RoutePlaceholder
-            eyebrow="Documento fuente"
-            title="CV maestro"
-            description="Carga y consulta la versión LaTeX utilizada para producir documentos derivados."
-            path="/resume"
-          />
-        ),
+        element: <ResumePage />,
       },
       {
         path: "cv-analyses/:analysisId",
