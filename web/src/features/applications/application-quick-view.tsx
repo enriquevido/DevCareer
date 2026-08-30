@@ -2,7 +2,11 @@ import { ExternalLink, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import type { ApplicationRecord } from "../../types/api";
-import { formatApplicationDateTime } from "./application-format";
+import {
+  formatApplicationDateTime,
+  getApplicationWorkplaceLabel,
+  getSafeApplicationUrl,
+} from "./application-format";
 import { ApplicationStatusBadge } from "./application-status-badge";
 
 type ApplicationQuickViewProps = {
@@ -25,46 +29,13 @@ function QuickViewField({ children, label }: QuickViewFieldProps) {
   );
 }
 
-function getSafeExternalUrl(value: string | null): string | null {
-  if (!value) {
-    return null;
-  }
-
-  try {
-    const url = new URL(value);
-
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
-      return null;
-    }
-
-    return url.toString();
-  } catch {
-    return null;
-  }
-}
-
-function getWorkplaceLabel(application: ApplicationRecord): string | null {
-  const location = application.location?.trim();
-  const parts: string[] = [];
-
-  if (location) {
-    parts.push(location);
-  }
-
-  if (application.isRemote) {
-    parts.push("Remoto");
-  }
-
-  return parts.length > 0 ? parts.join(" · ") : null;
-}
-
 export function ApplicationQuickView({
   application,
   onClose,
 }: ApplicationQuickViewProps) {
-  const workplaceLabel = getWorkplaceLabel(application);
+  const workplaceLabel = getApplicationWorkplaceLabel(application);
 
-  const safeJobUrl = getSafeExternalUrl(application.jobUrl);
+  const safeJobUrl = getSafeApplicationUrl(application.jobUrl);
 
   const salaryRange = application.salaryRange?.trim() || null;
 

@@ -3,8 +3,10 @@ import type {
   ApplicationFilters,
   ApplicationRecord,
   ApplicationWithEvents,
+  ChangeApplicationStatusResponse,
   CreateApplicationInput,
   UpdateApplicationInput,
+  UpdateApplicationStatusInput,
 } from "../../types/api";
 
 export const applicationQueryKeys = {
@@ -34,11 +36,7 @@ export function fetchApplications(
 export function fetchApplication(
   applicationId: string,
 ): Promise<ApplicationWithEvents> {
-  const encodedApplicationId = encodeURIComponent(applicationId);
-
-  return apiRequest<ApplicationWithEvents>(
-    `/applications/${encodedApplicationId}`,
-  );
+  return apiRequest<ApplicationWithEvents>(buildApplicationPath(applicationId));
 }
 
 export function createApplication(
@@ -54,15 +52,37 @@ export function updateApplication(
   applicationId: string,
   input: UpdateApplicationInput,
 ): Promise<ApplicationRecord> {
-  const encodedApplicationId = encodeURIComponent(applicationId);
+  return apiRequest<ApplicationRecord>(buildApplicationPath(applicationId), {
+    method: "PATCH",
+    body: input,
+  });
+}
 
-  return apiRequest<ApplicationRecord>(
-    `/applications/${encodedApplicationId}`,
+export function changeApplicationStatus(
+  applicationId: string,
+  input: UpdateApplicationStatusInput,
+): Promise<ChangeApplicationStatusResponse> {
+  return apiRequest<ChangeApplicationStatusResponse>(
+    `${buildApplicationPath(applicationId)}/status`,
     {
       method: "PATCH",
       body: input,
     },
   );
+}
+
+export function deleteApplication(
+  applicationId: string,
+): Promise<ApplicationRecord> {
+  return apiRequest<ApplicationRecord>(buildApplicationPath(applicationId), {
+    method: "DELETE",
+  });
+}
+
+function buildApplicationPath(applicationId: string): string {
+  const encodedApplicationId = encodeURIComponent(applicationId);
+
+  return `/applications/${encodedApplicationId}`;
 }
 
 function buildApplicationListPath(filters: ApplicationFilters): string {

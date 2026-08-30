@@ -1,5 +1,6 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import { AppShell } from "./components/app-shell";
+import { ApplicationDetailPage } from "./features/applications/application-detail-page";
 import { ApplicationsPage } from "./features/applications/applications-page";
 import { EditApplicationPage } from "./features/applications/edit-application-page";
 import { NewApplicationPage } from "./features/applications/new-application-page";
@@ -25,14 +26,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "applications/:applicationId",
-        element: (
-          <RoutePlaceholder
-            eyebrow="Postulaciones"
-            title="Detalle de postulación"
-            description="Consulta la vacante, su línea de tiempo y las versiones de CV relacionadas."
-            path="/applications/:applicationId"
-          />
-        ),
+        element: <ApplicationDetailPage />,
       },
       {
         path: "applications/:applicationId/edit",

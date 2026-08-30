@@ -63,6 +63,9 @@ function ApplicationTableRow({
       onClick={() => {
         onSelect(application);
       }}
+      onDoubleClick={() => {
+        onOpen(application);
+      }}
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
