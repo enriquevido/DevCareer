@@ -1,69 +1,77 @@
 @import "tailwindcss";
 
-@theme {
---color-paper: #f5f0e5;
---color-paper-deep: #eae4d8;
---color-ink: #1d1c19;
---color-ink-soft: #696359;
---color-line: #c9c0b2;
---color-line-strong: #8f887d;
---color-signal: #c94b34;
---color-signal-dark: #8d3021;
---color-signal-light: #ff8068;
---color-rail-line: #4e4b45;
---color-rail-muted: #aaa59c;
---color-rail-text: #bbb6ac;
---color-rail-index: #7e7971;
+  @theme {
+    --breakpoint-desktop: 60rem;
 
---font-display: "Iowan Old Style", Baskerville, "Times New Roman", serif;
---font-body: "Avenir Next", Avenir, "Helvetica Neue", sans-serif;
---font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    --color-canvas: #0b0f14;
+    --color-sidebar: #080b10;
+    --color-surface: #0f141a;
+    --color-surface-raised: #131a22;
+    --color-surface-hover: #151d26;
+    --color-surface-selected: #101c2a;
 
---animate-reveal-content: reveal-content 320ms ease-out both;
+    --color-line: #202832;
+    --color-line-strong: #2d3742;
 
-@keyframes reveal-content {
-    from {
-    opacity: 0;
-    transform: translateY(0.75rem);
+    --color-foreground: #f0f3f6;
+    --color-foreground-muted: #a4afba;
+    --color-foreground-subtle: #6f7b87;
+
+    --color-accent: #0a66c2;
+    --color-accent-hover: #378fe9;
+    --color-accent-soft: #70b5f9;
+
+    --color-success: #58a97b;
+    --color-warning: #d7a451;
+    --color-danger: #e06c75;
+
+    --font-sans:
+      "Geist", "Avenir Next", Avenir, ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+    --font-mono:
+      "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+
+    --ease-interface: cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  @layer base {
+    html {
+      min-width: 320px;
+      min-height: 100%;
+      color-scheme: dark;
+      background: var(--color-canvas);
     }
 
-    to {
-    opacity: 1;
-    transform: translateY(0);
+    body {
+      min-width: 320px;
+      min-height: 100dvh;
+      margin: 0;
+      color: var(--color-foreground);
+      background: var(--color-canvas);
+      font-family: var(--font-sans);
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
     }
-}
-}
 
-@layer base {
-html {
-    min-width: 320px;
-    min-height: 100%;
-    color-scheme: light;
-    background: var(--color-paper-deep);
-}
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
 
-body {
-    min-width: 320px;
-    min-height: 100vh;
-    margin: 0;
-    color: var(--color-ink);
-    background: var(--color-paper-deep);
-    font-family: var(--font-body);
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
-}
+    #root {
+      min-height: 100dvh;
+    }
 
-#root {
-    min-height: 100vh;
-}
+    ::selection {
+      color: var(--color-foreground);
+      background: var(--color-accent);
+    }
 
-::selection {
-    color: var(--color-paper);
-    background: var(--color-signal-dark);
-}
-
-:focus-visible {
-    outline: 2px solid var(--color-signal);
-    outline-offset: 4px;
-}
-}
+    :focus-visible {
+      outline: 2px solid var(--color-accent-hover);
+      outline-offset: 2px;
+    }
+  }

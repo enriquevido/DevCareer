@@ -1,74 +1,105 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { MouseEvent } from "react";
+import { Outlet } from "react-router-dom";
+import { useSidebarPreference } from "../hooks/use-sidebar-preference";
+import { Sidebar } from "./sidebar";
 
-type NavigationItem = {
-  index: string;
-  label: string;
-  to: string;
-};
+const MOBILE_NAVIGATION_DIALOG_ID = "mobile-navigation-dialog";
 
-const NAVIGATION_ITEMS: readonly NavigationItem[] = [
-  {
-    index: "01",
-    label: "Postulaciones",
-    to: "/applications",
-  },
-  {
-    index: "02",
-    label: "CV maestro",
-    to: "/resume",
-  },
-];
-
-function getNavigationLinkClassName(isActive: boolean): string {
-  const stateClasses = isActive
-    ? "border-signal text-paper md:border-rail-line"
-    : "border-transparent text-rail-text md:border-rail-line";
-
-  return [
-    "group",
-    "mr-6",
-    "grid",
-    "min-w-max",
-    "grid-cols-[auto_auto]",
-    "items-center",
-    "gap-2",
-    "border-b-2",
-    "py-3.5",
-    "text-sm",
-    "no-underline",
-    "transition-[color,transform]",
-    "duration-150",
-    "hover:text-paper",
-    "focus-visible:outline-signal-light",
-    "motion-reduce:transition-none",
-    "md:mr-0",
-    "md:grid-cols-[2.25rem_minmax(0,1fr)_auto]",
-    "md:border-b",
-    "md:pr-6",
-    "md:hover:translate-x-1",
-    stateClasses,
-  ].join(" ");
-}
+const MOBILE_SIDEBAR_ID = "mobile-sidebar";
+const DESKTOP_SIDEBAR_ID = "desktop-sidebar";
 
 export function AppShell() {
+  const { isSidebarCollapsed, toggleSidebar } = useSidebarPreference();
+
+  const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
+
+  const mobileNavigationDialogRef = useRef<HTMLDialogElement>(null);
+
+  const openMobileNavigation = useCallback(() => {
+    setIsMobileNavigationOpen(true);
+  }, []);
+
+  const closeMobileNavigation = useCallback(() => {
+    setIsMobileNavigationOpen(false);
+  }, []);
+
+  useEffect(() => {
+    const dialog = mobileNavigationDialogRef.current;
+
+    if (!dialog) {
+      return;
+    }
+
+    if (isMobileNavigationOpen && !dialog.open) {
+      dialog.showModal();
+      return;
+    }
+
+    if (!isMobileNavigationOpen && dialog.open) {
+      dialog.close();
+    }
+  }, [isMobileNavigationOpen]);
+
+  useEffect(() => {
+    const desktopMediaQuery = window.matchMedia("(min-width: 60rem)");
+
+    function handleBreakpointChange(event: MediaQueryListEvent): void {
+      if (event.matches) {
+        setIsMobileNavigationOpen(false);
+      }
+    }
+
+    desktopMediaQuery.addEventListener("change", handleBreakpointChange);
+
+    return () => {
+      desktopMediaQuery.removeEventListener("change", handleBreakpointChange);
+    };
+  }, []);
+
+  const handleDialogClick = useCallback(
+    (event: MouseEvent<HTMLDialogElement>) => {
+      if (event.target === event.currentTarget) {
+        closeMobileNavigation();
+      }
+    },
+    [closeMobileNavigation],
+  );
+
   return (
-    <div className="min-h-screen md:grid md:grid-cols-[17rem_minmax(0,1fr)]">
+    <div
+      className={[
+        "min-h-dvh",
+        "bg-canvas",
+        "text-foreground",
+        "desktop:grid",
+        "desktop:transition-[grid-template-columns]",
+        "desktop:duration-200",
+        "desktop:ease-interface",
+        "motion-reduce:transition-none",
+        isSidebarCollapsed
+          ? "desktop:grid-cols-[4rem_minmax(0,1fr)]"
+          : "desktop:grid-cols-[14rem_minmax(0,1fr)]",
+      ].join(" ")}
+    >
       <a
         className={[
           "fixed",
           "top-3",
           "left-3",
-          "z-50",
+          "z-100",
           "-translate-y-[160%]",
-          "bg-ink",
-          "px-3.5",
-          "py-2.5",
-          "font-mono",
-          "text-xs",
-          "tracking-wide",
-          "text-paper",
+          "rounded-sm",
+          "bg-accent",
+          "px-3",
+          "py-2",
+          "text-sm",
+          "font-medium",
+          "text-white",
           "no-underline",
           "transition-transform",
+          "duration-150",
           "focus:translate-y-0",
           "motion-reduce:transition-none",
         ].join(" ")}
@@ -77,204 +108,121 @@ export function AppShell() {
         Saltar al contenido
       </a>
 
-      <aside
-        className={[
-          "relative",
-          "flex",
-          "min-h-0",
-          "flex-col",
-          "overflow-hidden",
-          "bg-ink",
-          "px-5",
-          "pt-5",
-          "text-paper",
-          "after:absolute",
-          "after:bottom-0",
-          "after:left-0",
-          "after:h-0.5",
-          "after:w-full",
-          "after:bg-signal",
-          "after:content-['']",
-          "md:sticky",
-          "md:top-0",
-          "md:h-svh",
-          "md:min-h-152",
-          "md:px-6",
-          "md:py-8",
-          "md:after:top-0",
-          "md:after:right-4",
-          "md:after:bottom-auto",
-          "md:after:left-auto",
-          "md:after:h-full",
-          "md:after:w-0.5",
-        ].join(" ")}
-      >
-        <NavLink
-          aria-label="Job Search Tracker — Postulaciones"
-          className={[
-            "flex",
-            "w-fit",
-            "items-center",
-            "gap-3",
-            "text-paper",
-            "no-underline",
-            "focus-visible:outline-signal-light",
-          ].join(" ")}
-          to="/applications"
-        >
-          <span
-            aria-hidden="true"
-            className={[
-              "grid",
-              "size-10",
-              "shrink-0",
-              "place-items-center",
-              "border",
-              "border-rail-index",
-              "font-mono",
-              "text-xs",
-              "tracking-widest",
-              "text-signal-light",
-            ].join(" ")}
-          >
-            JT
-          </span>
+      <div className="hidden desktop:sticky desktop:top-0 desktop:block desktop:h-dvh">
+        <Sidebar
+          id={DESKTOP_SIDEBAR_ID}
+          isCollapsed={isSidebarCollapsed}
+          onToggle={toggleSidebar}
+          variant="desktop"
+        />
+      </div>
 
-          <span className="min-w-0">
-            <strong className="block font-display text-lg font-semibold tracking-tight">
-              Job Search
-            </strong>
-
-            <small className="mt-0.5 block font-mono text-[0.6rem] tracking-[0.08em] text-rail-muted uppercase">
-              Archivo de carrera
-            </small>
-          </span>
-        </NavLink>
-
-        <nav
-          aria-label="Navegación principal"
-          className={[
-            "mt-5",
-            "flex",
-            "overflow-x-auto",
-            "border-t",
-            "border-rail-line",
-            "scrollbar-thin",
-            "md:mt-16",
-            "md:grid",
-            "md:overflow-visible",
-          ].join(" ")}
-        >
-          {NAVIGATION_ITEMS.map((item) => (
-            <NavLink
-              className={({ isActive }) => getNavigationLinkClassName(isActive)}
-              key={item.to}
-              to={item.to}
-            >
-              {({ isActive }) => (
-                <>
-                  <span
-                    aria-hidden="true"
-                    className={[
-                      "font-mono",
-                      "text-[0.62rem]",
-                      isActive ? "text-signal-light" : "text-rail-index",
-                    ].join(" ")}
-                  >
-                    {item.index}
-                  </span>
-
-                  <span>{item.label}</span>
-
-                  <span
-                    aria-hidden="true"
-                    className={[
-                      "hidden",
-                      "size-1.5",
-                      "bg-signal",
-                      "md:block",
-                      isActive ? "opacity-100" : "opacity-0",
-                    ].join(" ")}
-                  />
-                </>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="mt-auto hidden max-w-48 border-t border-rail-line pt-5 md:block">
-          <span className="font-mono text-[0.58rem] tracking-widest text-rail-index uppercase">
-            Espacio de trabajo
-          </span>
-
-          <p className="mt-2.5 font-display text-sm leading-6 text-rail-muted">
-            Vacantes, versiones y decisiones conservadas en un solo expediente.
-          </p>
-        </div>
-      </aside>
-
-      <div
-        className={[
-          "relative",
-          "min-w-0",
-          "bg-paper",
-          "before:pointer-events-none",
-          "before:absolute",
-          "before:inset-y-0",
-          "before:left-6",
-          "before:w-px",
-          "before:bg-signal/15",
-          "before:content-['']",
-          "md:before:left-15",
-        ].join(" ")}
-      >
+      <div className="min-w-0">
         <header
           className={[
-            "relative",
+            "sticky",
+            "top-0",
+            "z-30",
             "flex",
-            "min-h-15",
+            "h-14",
             "items-center",
-            "justify-between",
-            "gap-8",
+            "gap-3",
             "border-b",
             "border-line",
-            "pr-5",
-            "pl-10",
-            "md:min-h-18",
-            "md:pr-12",
-            "md:pl-21",
+            "bg-canvas",
+            "px-4",
+            "desktop:hidden",
           ].join(" ")}
         >
-          <p className="hidden font-mono text-[0.64rem] tracking-widest text-ink-soft uppercase md:block">
-            Archivo local de postulaciones
-          </p>
+          <button
+            aria-controls={MOBILE_NAVIGATION_DIALOG_ID}
+            aria-expanded={isMobileNavigationOpen}
+            aria-label="Abrir navegación"
+            className={[
+              "grid",
+              "size-8",
+              "place-items-center",
+              "rounded-sm",
+              "border-0",
+              "bg-transparent",
+              "p-0",
+              "text-foreground-muted",
+              "transition-colors",
+              "duration-150",
+              "hover:bg-surface-hover",
+              "hover:text-foreground",
+              "focus-visible:outline-none",
+              "focus-visible:ring-2",
+              "focus-visible:ring-accent",
+              "motion-reduce:transition-none",
+            ].join(" ")}
+            onClick={openMobileNavigation}
+            type="button"
+          >
+            <Menu aria-hidden="true" className="size-4.5" strokeWidth={1.8} />
+          </button>
 
-          <span className="ml-auto font-mono text-[0.62rem] tracking-[0.08em] text-ink-soft uppercase">
-            Entorno local
+          <span className="text-sm font-semibold tracking-[-0.01em]">
+            DevCareer
           </span>
         </header>
 
         <main
           className={[
-            "relative",
-            "min-h-[calc(100vh-3.75rem)]",
-            "w-full",
-            "max-w-368",
-            "pt-14",
-            "pr-4",
-            "pb-12",
-            "pl-10",
-            "md:min-h-[calc(100vh-4.5rem)]",
-            "md:pt-[clamp(3rem,7vw,7rem)]",
-            "md:pr-[clamp(2rem,6vw,7rem)]",
-            "md:pb-16",
-            "md:pl-21",
+            "min-h-[calc(100dvh-3.5rem)]",
+            "min-w-0",
+            "px-4",
+            "py-5",
+            "sm:px-5",
+            "desktop:min-h-dvh",
+            "desktop:px-6",
+            "desktop:py-6",
+            "xl:px-8",
           ].join(" ")}
           id="main-content"
         >
-          <Outlet />
+          <div className="w-full min-w-0">
+            <Outlet />
+          </div>
         </main>
       </div>
+
+      <dialog
+        aria-label="Navegación principal"
+        className={[
+          "fixed",
+          "inset-0",
+          "z-50",
+          "m-0",
+          "h-dvh",
+          "max-h-none",
+          "w-full",
+          "max-w-none",
+          "overflow-hidden",
+          "bg-transparent",
+          "p-0",
+          "backdrop:bg-black/70",
+          "open:flex",
+          "desktop:hidden",
+        ].join(" ")}
+        id={MOBILE_NAVIGATION_DIALOG_ID}
+        onCancel={(event) => {
+          event.preventDefault();
+          closeMobileNavigation();
+        }}
+        onClick={handleDialogClick}
+        onClose={closeMobileNavigation}
+        ref={mobileNavigationDialogRef}
+      >
+        <div className="h-dvh w-72 max-w-[calc(100vw-2rem)]">
+          <Sidebar
+            id={MOBILE_SIDEBAR_ID}
+            onClose={closeMobileNavigation}
+            onNavigate={closeMobileNavigation}
+            variant="drawer"
+          />
+        </div>
+      </dialog>
     </div>
   );
 }

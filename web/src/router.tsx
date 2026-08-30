@@ -15,8 +15,7 @@ export const router = createBrowserRouter([
         path: "applications",
         element: (
           <RoutePlaceholder
-            sequence="01"
-            eyebrow="Registro principal"
+            eyebrow="Seguimiento"
             title="Postulaciones"
             description="Busca, filtra y consulta las vacantes que forman parte de tu proceso."
             path="/applications"
@@ -27,10 +26,9 @@ export const router = createBrowserRouter([
         path: "applications/new",
         element: (
           <RoutePlaceholder
-            sequence="01.1"
-            eyebrow="Nuevo expediente"
-            title="Registrar postulación"
-            description="Captura la vacante completa antes de analizar y adaptar el CV."
+            eyebrow="Postulaciones"
+            title="Nueva postulación"
+            description="Registra la vacante y su descripción antes de analizar el CV."
             path="/applications/new"
           />
         ),
@@ -39,8 +37,7 @@ export const router = createBrowserRouter([
         path: "applications/:applicationId",
         element: (
           <RoutePlaceholder
-            sequence="01.2"
-            eyebrow="Detalle del expediente"
+            eyebrow="Postulaciones"
             title="Detalle de postulación"
             description="Consulta la vacante, su línea de tiempo y las versiones de CV relacionadas."
             path="/applications/:applicationId"
@@ -51,8 +48,7 @@ export const router = createBrowserRouter([
         path: "applications/:applicationId/edit",
         element: (
           <RoutePlaceholder
-            sequence="01.3"
-            eyebrow="Corrección del registro"
+            eyebrow="Postulaciones"
             title="Editar postulación"
             description="Actualiza los datos de la vacante sin perder su historial."
             path="/applications/:applicationId/edit"
@@ -63,7 +59,6 @@ export const router = createBrowserRouter([
         path: "resume",
         element: (
           <RoutePlaceholder
-            sequence="02"
             eyebrow="Documento fuente"
             title="CV maestro"
             description="Carga y consulta la versión LaTeX utilizada para producir documentos derivados."
@@ -75,8 +70,7 @@ export const router = createBrowserRouter([
         path: "cv-analyses/:analysisId",
         element: (
           <RoutePlaceholder
-            sequence="03"
-            eyebrow="Mesa de revisión"
+            eyebrow="Revisión de CV"
             title="Análisis del CV"
             description="Revisa recomendaciones, cambios aplicados, brechas y resultados de compilación."
             path="/cv-analyses/:analysisId"
@@ -87,10 +81,9 @@ export const router = createBrowserRouter([
         path: "*",
         element: (
           <RoutePlaceholder
-            sequence="404"
-            eyebrow="Expediente inexistente"
+            eyebrow="Navegación"
             title="Página no encontrada"
-            description="La dirección solicitada no corresponde con una sección registrada."
+            description="La dirección solicitada no corresponde con una sección disponible."
             path="*"
           />
         ),

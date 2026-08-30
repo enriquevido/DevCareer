@@ -1,5 +1,7 @@
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+
 export type RoutePlaceholderProps = {
-  sequence: string;
   eyebrow: string;
   title: string;
   description: string;
@@ -7,119 +9,114 @@ export type RoutePlaceholderProps = {
 };
 
 export function RoutePlaceholder({
-  sequence,
   eyebrow,
   title,
   description,
   path,
 }: RoutePlaceholderProps) {
-  const titleId = `route-title-${sequence.replaceAll(".", "-")}`;
+  const isNotFound = path === "*";
+
+  const titleId = isNotFound
+    ? "not-found-title"
+    : `route-title-${path.replaceAll("/", "-")}`;
 
   return (
-    <section
-      aria-labelledby={titleId}
-      className={[
-        "grid",
-        "min-h-112",
-        "grid-cols-1",
-        "items-start",
-        "gap-12",
-        "animate-reveal-content",
-        "motion-reduce:animate-none",
-        "lg:grid-cols-[minmax(0,42rem)_minmax(12rem,1fr)]",
-        "lg:gap-[clamp(3rem,8vw,9rem)]",
-      ].join(" ")}
-    >
-      <div className="max-w-176 pt-4">
-        <p
-          className={[
-            "mb-5.5",
-            "font-mono",
-            "text-[0.66rem]",
-            "font-semibold",
-            "tracking-[0.13em]",
-            "text-signal-dark",
-            "uppercase",
-          ].join(" ")}
-        >
-          {eyebrow}
-        </p>
-
-        <h1
-          className={[
-            "max-w-[13ch]",
-            "font-display",
-            "text-[clamp(2.5rem,13vw,3.6rem)]",
-            "leading-[0.94]",
-            "font-medium",
-            "tracking-[-0.04em]",
-            "text-balance",
-            "text-ink",
-            "sm:text-[clamp(2.8rem,8vw,4.4rem)]",
-            "lg:text-[clamp(2.8rem,5vw,4.8rem)]",
-          ].join(" ")}
-          id={titleId}
-        >
-          {title}
-        </h1>
-
-        <p
-          className={[
-            "mt-8",
-            "max-w-152",
-            "text-base",
-            "leading-7",
-            "text-pretty",
-            "text-ink-soft",
-            "lg:text-lg",
-            "lg:leading-8",
-          ].join(" ")}
-        >
-          {description}
-        </p>
-      </div>
-
-      <aside
-        aria-label="Información de la ruta"
+    <section aria-labelledby={titleId} className="w-full">
+      <header
         className={[
-          "grid",
-          "max-w-md",
-          "grid-cols-[auto_minmax(0,1fr)]",
-          "gap-4",
-          "border-y",
+          "flex",
+          "flex-col",
+          "gap-5",
+          "border-b",
           "border-line",
-          "py-4",
-          "lg:max-w-none",
-          "lg:border-t-line-strong",
+          "pb-5",
+          "desktop:flex-row",
+          "desktop:items-end",
+          "desktop:justify-between",
         ].join(" ")}
       >
-        <span
-          aria-hidden="true"
-          className="font-display text-4xl leading-none text-signal"
-        >
-          {sequence}
-        </span>
-
         <div className="min-w-0">
-          <span
+          <p className="text-sm font-medium text-accent-soft">{eyebrow}</p>
+
+          <h1
             className={[
-              "mb-2",
-              "block",
+              "mt-1.5",
+              "text-2xl",
+              "leading-8",
+              "font-semibold",
+              "tracking-[-0.02em]",
+              "text-foreground",
+            ].join(" ")}
+            id={titleId}
+          >
+            {title}
+          </h1>
+
+          <p className="mt-1.5 max-w-3xl text-sm leading-6 text-foreground-muted">
+            {description}
+          </p>
+        </div>
+
+        {isNotFound ? null : (
+          <code
+            className={[
+              "max-w-full",
+              "shrink-0",
+              "self-start",
               "font-mono",
-              "text-[0.58rem]",
-              "tracking-widest",
-              "text-ink-soft",
-              "uppercase",
+              "text-xs",
+              "text-foreground-subtle",
+              "wrap-anywhere",
+              "desktop:self-auto",
             ].join(" ")}
           >
-            Ruta preparada
-          </span>
-
-          <code className="block overflow-wrap-anywhere font-mono text-xs text-ink">
             {path}
           </code>
-        </div>
-      </aside>
+        )}
+      </header>
+
+      <div className="py-7">
+        <p className="text-sm font-medium text-foreground">
+          {isNotFound
+            ? "Esta dirección no está disponible"
+            : "Pendiente de implementación"}
+        </p>
+
+        <p className="mt-1.5 max-w-3xl text-sm leading-6 text-foreground-muted">
+          {isNotFound
+            ? "La ruta solicitada no corresponde con una pantalla disponible en DevCareer."
+            : "Esta pantalla se conectará a sus datos y acciones en el commit funcional correspondiente."}
+        </p>
+
+        {isNotFound ? (
+          <Link
+            className={[
+              "mt-5",
+              "inline-flex",
+              "items-center",
+              "gap-2",
+              "text-sm",
+              "font-medium",
+              "text-accent-soft",
+              "underline-offset-4",
+              "hover:underline",
+              "focus-visible:rounded-sm",
+              "focus-visible:outline-none",
+              "focus-visible:ring-2",
+              "focus-visible:ring-accent",
+              "motion-reduce:transition-none",
+            ].join(" ")}
+            to="/applications"
+          >
+            <ArrowLeft
+              aria-hidden="true"
+              className="size-4"
+              strokeWidth={1.8}
+            />
+            Volver a Postulaciones
+          </Link>
+        ) : null}
+      </div>
     </section>
   );
 }
