@@ -1,5 +1,8 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
 import { AppShell } from "./components/app-shell";
+import { ApplicationsPage } from "./features/applications/applications-page";
+import { EditApplicationPage } from "./features/applications/edit-application-page";
+import { NewApplicationPage } from "./features/applications/new-application-page";
 import { ResumePage } from "./features/resume/resume-page";
 import { RoutePlaceholder } from "./pages/route-placeholder";
 
@@ -14,25 +17,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "applications",
-        element: (
-          <RoutePlaceholder
-            eyebrow="Seguimiento"
-            title="Postulaciones"
-            description="Busca, filtra y consulta las vacantes que forman parte de tu proceso."
-            path="/applications"
-          />
-        ),
+        element: <ApplicationsPage />,
       },
       {
         path: "applications/new",
-        element: (
-          <RoutePlaceholder
-            eyebrow="Postulaciones"
-            title="Nueva postulación"
-            description="Registra la vacante y su descripción antes de analizar el CV."
-            path="/applications/new"
-          />
-        ),
+        element: <NewApplicationPage />,
       },
       {
         path: "applications/:applicationId",
@@ -47,14 +36,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "applications/:applicationId/edit",
-        element: (
-          <RoutePlaceholder
-            eyebrow="Postulaciones"
-            title="Editar postulación"
-            description="Actualiza los datos de la vacante sin perder su historial."
-            path="/applications/:applicationId/edit"
-          />
-        ),
+        element: <EditApplicationPage />,
       },
       {
         path: "resume",
