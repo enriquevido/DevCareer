@@ -1,13 +1,14 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from '../database/prisma/prisma.module';
-import { LatexModule } from '../latex/latex.module';
+import { LatexModule } from '../integrations/latex/latex.module';
+import { StorageModule } from '../storage/storage.module';
 import { CV_ANALYSIS_PROVIDER } from './cv-analysis-provider';
 import { CvAnalysesController } from './cv-analyses.controller';
 import { CvAnalysesService } from './cv-analyses.service';
 import { DeepSeekCvAnalysisProvider } from './deepseek-cv-analysis.provider';
 
 @Module({
-  imports: [PrismaModule, LatexModule],
+  imports: [PrismaModule, LatexModule, StorageModule],
   controllers: [CvAnalysesController],
   providers: [
     CvAnalysesService,

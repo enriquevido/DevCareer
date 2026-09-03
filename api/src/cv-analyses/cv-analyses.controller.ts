@@ -11,7 +11,7 @@ import {
 import { CvAnalysisStatus } from '@prisma/client';
 import { createReadStream } from 'node:fs';
 import type { Response } from 'express';
-import { CompiledPdfStorage } from '../latex/compiled-pdf.storage';
+import { CompiledPdfStorage } from '../storage/compiled-pdf.storage';
 import { CvAnalysesService } from './cv-analyses.service';
 import { GenerateCvAnalysisDto } from './dto/generate-cv-analysis.dto';
 

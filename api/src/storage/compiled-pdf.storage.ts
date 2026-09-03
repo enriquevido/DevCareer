@@ -2,9 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { mkdir, rename, rm, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve } from 'node:path';
-import { UPLOADS_DIR } from '../files/files.service';
 import { statSync } from 'node:fs';
 
+const STORAGE_DIRECTORY = 'uploads';
 const GENERATED_CVS_DIRECTORY = 'generated-cvs';
 
 @Injectable()
@@ -61,11 +61,11 @@ export class CompiledPdfStorage {
   }
 
   private getGeneratedDirectory(): string {
-    return resolve(process.cwd(), UPLOADS_DIR, GENERATED_CVS_DIRECTORY);
+    return resolve(process.cwd(), STORAGE_DIRECTORY, GENERATED_CVS_DIRECTORY);
   }
 
   private resolveGeneratedFile(filename: string): string {
-    const uploadsDirectory = resolve(process.cwd(), UPLOADS_DIR);
+    const uploadsDirectory = resolve(process.cwd(), STORAGE_DIRECTORY);
     const generatedDirectory = this.getGeneratedDirectory();
     const filePath = resolve(uploadsDirectory, filename);
     const relativePath = relative(generatedDirectory, filePath);

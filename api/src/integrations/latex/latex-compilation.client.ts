@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { EnvironmentVariables } from '../config/environment.validation';
+import type { EnvironmentVariables } from '../../config/environment.validation';
 import {
   LatexCompilationFailureCode,
   type LatexCompilationFailure,

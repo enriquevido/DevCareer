@@ -6,12 +6,12 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { CvAnalysisStatus, type Prisma } from '@prisma/client';
-import { CompiledPdfStorage } from '../latex/compiled-pdf.storage';
-import { LatexCompilationClient } from '../latex/latex-compilation.client';
+import { LatexCompilationClient } from '../integrations/latex/latex-compilation.client';
 import type {
   LatexCompilationFailure,
   LatexCompilationResult,
-} from '../latex/latex-compilation.types';
+} from '../integrations/latex/latex-compilation.types';
+import { CompiledPdfStorage } from '../storage/compiled-pdf.storage';
 import { PrismaService } from '../database/prisma/prisma.service';
 import {
   CV_ANALYSIS_PROVIDER,

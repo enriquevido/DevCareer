@@ -6,7 +6,6 @@ import { CvAnalysesModule } from './cv-analyses/cv-analyses.module';
 import { PrismaModule } from './database/prisma/prisma.module';
 import { FilesModule } from './files/files.module';
 import { ResumesModule } from './resumes/resumes.module';
-import { LatexModule } from './latex/latex.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { LatexModule } from './latex/latex.module';
     FilesModule,
     ResumesModule,
     CvAnalysesModule,
-    LatexModule,
   ],
 })
 export class AppModule {}
