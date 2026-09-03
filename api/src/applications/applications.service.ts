@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../database/prisma/prisma.service';
+import { CompiledPdfStorage } from '../storage/compiled-pdf.storage';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { UpdateStatusDto } from './dto/update-status.dto';
 import { UpdateApplicationDto } from './dto/update-application.dto';
@@ -7,7 +8,12 @@ import { ApplicationStatus } from '@prisma/client';
 
 @Injectable()
 export class ApplicationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(ApplicationsService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly compiledPdfStorage: CompiledPdfStorage,
+  ) {}
 
   async create(dto: CreateApplicationDto) {
     return this.prisma.$transaction(async (tx) => {
@@ -72,7 +78,36 @@ export class ApplicationsService {
     ]);
   }
 
-  remove(id: string) {
-    return this.prisma.application.delete({ where: { id } });
+  async remove(id: string) {
+    const analyses = await this.prisma.cvAnalysis.findMany({
+      where: {
+        applicationId: id,
+        compiledPdfFile: { not: null },
+      },
+      select: {
+        compiledPdfFile: true,
+      },
+    });
+
+    const application = await this.prisma.application.delete({
+      where: { id },
+    });
+    const filenames = analyses.flatMap(({ compiledPdfFile }) =>
+      compiledPdfFile ? [compiledPdfFile] : [],
+    );
+    const cleanupResults = await Promise.allSettled(
+      filenames.map((filename) => this.compiledPdfStorage.remove(filename)),
+    );
+    const failedCleanupCount = cleanupResults.filter(
+      (result) => result.status === 'rejected',
+    ).length;
+
+    if (failedCleanupCount > 0) {
+      this.logger.warn(
+        `Could not remove ${failedCleanupCount} generated PDF file(s) for application ${id}.`,
+      );
+    }
+
+    return application;
   }
 }
