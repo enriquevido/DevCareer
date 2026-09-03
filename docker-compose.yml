@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: job-tracker-db
+    container_name: devcareer-db
     environment:
       POSTGRES_USER: tracker
       POSTGRES_PASSWORD: tracker
@@ -11,14 +11,14 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
-      - job-tracker-internal
+      - devcareer-internal
 
   latex-compiler:
     build:
       context: ./latex-service
       dockerfile: Dockerfile
-    image: job-tracker-latex-service:latest
-    container_name: job-tracker-latex-compiler
+    image: devcareer-latex-service:latest
+    container_name: devcareer-latex-compiler
     environment:
       PORT: 3001
       LATEX_MAX_SOURCE_BYTES: 524288
@@ -51,11 +51,11 @@ services:
       retries: 5
       start_period: 10s
     networks:
-      - job-tracker-internal
+      - devcareer-internal
 
 volumes:
   pgdata:
 
 networks:
-  job-tracker-internal:
+  devcareer-internal:
     driver: bridge

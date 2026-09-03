@@ -1,5 +1,5 @@
 {
-  "name": "job-tracker-latex-service",
+  "name": "@devcareer/latex-service",
   "version": "1.0.0",
   "private": true,
   "type": "module",

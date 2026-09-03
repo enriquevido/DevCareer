@@ -1,6 +1,6 @@
-# Job Search Tracker
+# DevCareer
 
-Job Search Tracker is a local web application for managing job applications and adapting a master LaTeX resume to a specific vacancy. It keeps application details, status history, resume versions, and generated CV analyses in one place.
+DevCareer is a local web application for managing job applications and adapting a master LaTeX resume to a specific vacancy. It keeps application details, status history, resume versions, and generated CV analyses in one place.
 
 ## What the application does
 
