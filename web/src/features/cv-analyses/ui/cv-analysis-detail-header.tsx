@@ -4,13 +4,13 @@ import { formatDateTime } from "@/shared/lib/date-format";
 import {
   getCvAnalysisPdfDownloadUrl,
   getCvAnalysisSourceDownloadUrl,
-} from "./cv-analysis-api";
+} from "../api/cv-analysis-api";
 import {
   canDownloadCvAnalysisPdf,
   canDownloadCvAnalysisSource,
   canSelectCvAnalysis,
   getCvAnalysisStatusPresentation,
-} from "./cv-analysis-status";
+} from "../model/cv-analysis-status";
 import { CvAnalysisStatusBadge } from "./cv-analysis-status-badge";
 
 type CvAnalysisDetailHeaderProps = {

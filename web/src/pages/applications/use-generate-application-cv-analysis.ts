@@ -5,8 +5,8 @@ import { fetchCurrentResume, resumeQueryKeys } from "@/features/resume/resume-ap
 import {
   cvAnalysisQueryKeys,
   generateApplicationCvAnalysis,
-} from "@/features/applications/cv-analysis-api";
-import { getCvAnalysisErrorMessage } from "@/features/applications/cv-analysis-error";
+  getCvAnalysisErrorMessage,
+} from "@/features/cv-analyses";
 
 type UseGenerateApplicationCvAnalysisOptions = {
   applicationId: string | undefined;

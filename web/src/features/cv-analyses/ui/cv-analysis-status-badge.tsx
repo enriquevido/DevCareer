@@ -1,5 +1,5 @@
 import type { CvAnalysisStatus } from "@/domain/cv-analysis";
-import { getCvAnalysisStatusPresentation } from "./cv-analysis-status";
+import { getCvAnalysisStatusPresentation } from "../model/cv-analysis-status";
 
 type CvAnalysisStatusBadgeProps = {
   status: CvAnalysisStatus;

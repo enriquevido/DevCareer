@@ -19,11 +19,11 @@ import {
   fetchApplication,
   getApplicationErrorMessage,
 } from "@/features/applications";
-import { ApplicationAnalysisHistory } from "@/features/applications/application-analysis-history";
 import {
+  ApplicationAnalysisHistory,
   cvAnalysisQueryKeys,
   fetchApplicationCvAnalyses,
-} from "@/features/applications/cv-analysis-api";
+} from "@/features/cv-analyses";
 import {
   ApplicationDetailErrorState,
   ApplicationDetailLoadingState,

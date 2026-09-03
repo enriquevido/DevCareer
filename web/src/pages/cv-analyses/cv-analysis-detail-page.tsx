@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
-import { ConfirmCvSelectionDialog } from "./confirm-cv-selection-dialog";
-import { CvAnalysisDetailHeader } from "./cv-analysis-detail-header";
+import {
+  ConfirmCvSelectionDialog,
+  CvAnalysisDetailHeader,
+  CvAnalysisWorkspace,
+} from "@/features/cv-analyses";
 import {
   CvAnalysisDetailErrorState,
   CvAnalysisDetailLoadingState,
 } from "./cv-analysis-detail-page-state";
-import { CvAnalysisWorkspace } from "./cv-analysis-workspace";
 import { useCvAnalysisDetail } from "./use-cv-analysis-detail";
 
 export function CvAnalysisDetailPage() {

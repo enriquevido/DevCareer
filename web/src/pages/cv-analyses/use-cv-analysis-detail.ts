@@ -2,15 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApplicationWithEvents } from "@/domain/application";
 import { applicationQueryKeys, fetchApplication } from "@/features/applications";
 import {
+  canSelectCvAnalysis,
   cvAnalysisQueryKeys,
   fetchCvAnalysis,
+  getCvAnalysisErrorMessage,
   selectCvAnalysis,
-} from "./cv-analysis-api";
-import { getCvAnalysisErrorMessage } from "./cv-analysis-error";
-import {
-  canSelectCvAnalysis,
   shouldPollCvAnalysis,
-} from "./cv-analysis-status";
+} from "@/features/cv-analyses";
 
 type UseCvAnalysisDetailOptions = {
   analysisId: string | undefined;

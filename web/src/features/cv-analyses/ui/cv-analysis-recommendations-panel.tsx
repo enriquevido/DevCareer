@@ -5,7 +5,7 @@ import type {
 import {
   getReplacementRejectionReasonLabel,
   getReplacementStatusPresentation,
-} from "./cv-recommendation-presentation";
+} from "../model/cv-recommendation-presentation";
 
 type CvAnalysisRecommendationsPanelProps = {
   recommendations: CvAnalysisRecommendations | null;
