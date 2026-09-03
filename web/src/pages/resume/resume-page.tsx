@@ -4,13 +4,13 @@ import {
   fetchCurrentResume,
   fetchResumeSource,
   getResumeSourceDownloadUrl,
+  getResumeErrorMessage,
+  ResumeMetadata,
+  ResumeSourceViewer,
+  ResumeUploadForm,
   resumeQueryKeys,
   uploadResume,
-} from "./resume-api";
-import { getResumeErrorMessage } from "./resume-error";
-import { ResumeMetadata } from "./resume-metadata";
-import { ResumeSourceViewer } from "./resume-source-viewer";
-import { ResumeUploadForm } from "./resume-upload-form";
+} from "@/features/resume";
 
 type ResumeRequestErrorProps = {
   message: string;

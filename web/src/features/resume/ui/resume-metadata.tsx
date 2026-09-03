@@ -1,23 +1,9 @@
 import type { ResumeVersion } from "@/domain/resume";
+import { formatDateTime } from "@/shared/lib/date-format";
 
 type ResumeMetadataProps = {
   resume: ResumeVersion;
 };
-
-const DATE_TIME_FORMATTER = new Intl.DateTimeFormat("es-MX", {
-  dateStyle: "medium",
-  timeStyle: "short",
-});
-
-function formatCreatedAt(createdAt: string): string {
-  const date = new Date(createdAt);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Fecha no disponible";
-  }
-
-  return DATE_TIME_FORMATTER.format(date);
-}
 
 function shortenHash(hash: string): string {
   if (hash.length <= 12) {
@@ -28,7 +14,7 @@ function shortenHash(hash: string): string {
 }
 
 export function ResumeMetadata({ resume }: ResumeMetadataProps) {
-  const formattedCreatedAt = formatCreatedAt(resume.createdAt);
+  const formattedCreatedAt = formatDateTime(resume.createdAt);
 
   return (
     <section

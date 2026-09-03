@@ -5,7 +5,7 @@ import {
   RESUME_FILE_ACCEPT,
   formatFileSize,
   validateResumeFile,
-} from "./resume-file";
+} from "../model/resume-file";
 
 type ResumeUploadFormProps = {
   errorMessage: string | null;

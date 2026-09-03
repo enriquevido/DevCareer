@@ -1,10 +1,10 @@
 import { Navigate, createBrowserRouter } from "react-router-dom";
-import { ResumePage } from "@/features/resume/resume-page";
 import { ApplicationDetailPage } from "@/pages/applications/application-detail-page";
 import { ApplicationsPage } from "@/pages/applications/applications-page";
 import { EditApplicationPage } from "@/pages/applications/edit-application-page";
 import { NewApplicationPage } from "@/pages/applications/new-application-page";
 import { CvAnalysisDetailPage } from "@/pages/cv-analyses/cv-analysis-detail-page";
+import { ResumePage } from "@/pages/resume/resume-page";
 import { RoutePlaceholder } from "@/pages/route-placeholder";
 import { AppShell } from "./layout/app-shell";
 
