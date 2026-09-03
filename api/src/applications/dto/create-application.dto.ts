@@ -36,8 +36,4 @@ export class CreateApplicationDto {
   @IsOptional()
   @IsString()
   notes?: string;
-
-  @IsOptional()
-  @IsString()
-  cvFile?: string;
 }

@@ -35,7 +35,6 @@ model Application {
   salaryRange          String?
   source               String?
   notes                String?
-  cvFile               String?
   status               ApplicationStatus @default(DRAFT)
   selectedCvAnalysisId String?           @unique
   createdAt            DateTime          @default(now())

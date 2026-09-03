@@ -31,7 +31,6 @@ export type ApplicationRecord = {
   salaryRange: string | null;
   source: string | null;
   notes: string | null;
-  cvFile: string | null;
   status: ApplicationStatus;
   selectedCvAnalysisId: string | null;
   createdAt: IsoDateString;
