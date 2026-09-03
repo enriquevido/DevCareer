@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { createHash } from 'node:crypto';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../database/prisma/prisma.service';
 import type { ValidatedResumeUpload } from './resume-upload.validator';
 
 const RESUME_VERSION_METADATA_SELECT = {

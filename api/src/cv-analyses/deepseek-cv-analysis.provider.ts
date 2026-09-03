@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import type { EnvironmentVariables } from '../config/environment.validation';
 import type {
   CvAnalysisProvider,
   CvAnalysisProviderResponse,
@@ -8,7 +9,6 @@ import type {
 import type { CvAnalysisMessage } from './cv-analysis.types';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
-const DEFAULT_DEEPSEEK_MODEL = 'deepseek-v4-flash';
 
 @Injectable()
 export class DeepSeekCvAnalysisProvider implements CvAnalysisProvider {
@@ -16,12 +16,10 @@ export class DeepSeekCvAnalysisProvider implements CvAnalysisProvider {
 
   private readonly client: OpenAI | null;
 
-  constructor(configService: ConfigService) {
-    this.model =
-      configService.get<string>('DEEPSEEK_MODEL')?.trim() ||
-      DEFAULT_DEEPSEEK_MODEL;
+  constructor(configService: ConfigService<EnvironmentVariables, true>) {
+    this.model = configService.get('DEEPSEEK_MODEL', { infer: true });
 
-    const apiKey = configService.get<string>('DEEPSEEK_API_KEY')?.trim();
+    const apiKey = configService.get('DEEPSEEK_API_KEY', { infer: true });
 
     this.client = apiKey
       ? new OpenAI({

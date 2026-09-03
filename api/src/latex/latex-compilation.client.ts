@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import type { EnvironmentVariables } from '../config/environment.validation';
 import {
   LatexCompilationFailureCode,
   type LatexCompilationFailure,
   type LatexCompilationResult,
 } from './latex-compilation.types';
 
-const DEFAULT_LATEX_COMPILER_URL = 'http://127.0.0.1:3001';
-const DEFAULT_CLIENT_TIMEOUT_MS = 20_000;
 const MAX_DIAGNOSTIC_LENGTH = 32 * 1024;
 
 type ServiceErrorBody = {
@@ -21,17 +20,13 @@ export class LatexCompilationClient {
   private readonly compileUrl: string;
   private readonly timeoutMs: number;
 
-  constructor(configService: ConfigService) {
-    const serviceUrl =
-      configService.get<string>('LATEX_COMPILER_URL')?.trim() ||
-      DEFAULT_LATEX_COMPILER_URL;
+  constructor(configService: ConfigService<EnvironmentVariables, true>) {
+    const serviceUrl = configService.get('LATEX_COMPILER_URL', { infer: true });
 
     this.compileUrl = createCompileUrl(serviceUrl);
-    this.timeoutMs = readPositiveInteger(
-      configService.get<string>('LATEX_COMPILER_TIMEOUT_MS'),
-      DEFAULT_CLIENT_TIMEOUT_MS,
-      'LATEX_COMPILER_TIMEOUT_MS',
-    );
+    this.timeoutMs = configService.get('LATEX_COMPILER_TIMEOUT_MS', {
+      infer: true,
+    });
   }
 
   async compile(source: string): Promise<LatexCompilationResult> {
@@ -246,22 +241,4 @@ function createCompileUrl(serviceUrl: string): string {
   url.hash = '';
 
   return url.toString();
-}
-
-function readPositiveInteger(
-  rawValue: string | undefined,
-  fallback: number,
-  name: string,
-): number {
-  if (rawValue === undefined || rawValue.trim().length === 0) {
-    return fallback;
-  }
-
-  const value = Number(rawValue);
-
-  if (!Number.isSafeInteger(value) || value <= 0) {
-    throw new Error(`${name} must be a positive integer.`);
-  }
-
-  return value;
 }

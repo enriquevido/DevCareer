@@ -12,7 +12,7 @@ import type {
   LatexCompilationFailure,
   LatexCompilationResult,
 } from '../latex/latex-compilation.types';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../database/prisma/prisma.service';
 import {
   CV_ANALYSIS_PROVIDER,
   type CvAnalysisProvider,
