@@ -1,126 +1,169 @@
+<div align="center">
+
 # DevCareer
 
-DevCareer is a local web application for managing job applications and adapting a master LaTeX resume to a specific vacancy. It keeps application details, status history, resume versions, and generated CV analyses in one place.
+### Track every application. Protect the truth in your resume.
 
-## What the application does
+DevCareer connects job-application traceability with evidence-based CV suggestions. It helps you understand where every application stands and adapt your resume without presenting invented experience as fact.
 
-- Creates, edits, searches, and filters job applications.
-- Records application status changes in a timeline.
-- Stores a master resume as a versioned `.tex` file.
-- Uses DeepSeek to compare a job description with the master resume.
-- Produces recommendations without inventing unsupported experience.
-- Compiles an adapted LaTeX resume into a PDF.
-- Lets the user review and select an analysis for an application.
+<img
+  src="https://skillicons.dev/icons?i=ts,react,vite,tailwind,nestjs,nodejs,postgres,prisma,docker,latex"
+  alt="TypeScript, React, Vite, Tailwind CSS, NestJS, Node.js, PostgreSQL, Prisma, Docker, and LaTeX"
+/>
 
-## Architecture
+</div>
 
-The repository contains three application components and one database:
+## Three promises
 
-| Component | Technology | Responsibility | Local address |
-| --- | --- | --- | --- |
-| `web` | React, TypeScript, Vite | Browser interface | `http://localhost:5173` |
-| `api` | NestJS, Prisma | Business rules and HTTP API | `http://localhost:3000/api` |
-| `latex-service` | Node.js, pdfLaTeX | Isolated LaTeX-to-PDF compilation | `http://localhost:3001` |
-| `db` | PostgreSQL 16 | Persistent application data | `localhost:5432` |
+| Track every application | Preserve resume truth | DeepSeek suggests |
+| --- | --- | --- |
+| Keep the vacancy, current status, complete status timeline, CV-analysis history, and selected CV connected. | Start from a versioned master resume and keep unsupported vacancy requirements visible as gaps—not invented achievements. | DeepSeek proposes structured improvements. Application rules validate the response, and the user reviews the result before selecting it. |
 
-During development, Vite forwards browser requests beginning with `/api` to the NestJS API. The API communicates with PostgreSQL, DeepSeek, and the LaTeX compiler. The browser never connects to those services directly.
+## 1. Application tracking and traceability
 
-## Requirements
+An application is not just a row with a status. DevCareer preserves the path from the original vacancy to every status change and every generated CV analysis.
 
-Install the following tools before starting:
+```mermaid
+flowchart LR
+    Vacancy["Job vacancy"] --> Application["Application"]
+    Application --> Timeline["Status timeline"]
+    Timeline --> Draft["Draft"]
+    Timeline --> Applied["Applied"]
+    Timeline --> Interview["Interview / response"]
+    Timeline --> Outcome["Offer, rejection,<br/>or closure"]
+
+    Master["Versioned master CV"] --> Analyses["CV analysis history"]
+    Application --> Analyses
+    Analyses --> Selected["Selected CV<br/>for this application"]
+```
+
+This makes the important questions easy to answer:
+
+- What is the current state of this application?
+- How and when did it reach that state?
+- Which resume version was analyzed?
+- What did each analysis recommend?
+- Which generated CV was finally selected?
+
+## 2. The resume stays grounded in evidence
+
+DevCareer is designed to improve wording without turning missing experience into fictional experience.
+
+- The master LaTeX resume is the source of truth.
+- Resume uploads create or reuse content-addressed versions instead of silently replacing previous content.
+- The AI prompt forbids invented skills, employment, education, dates, achievements, and metrics.
+- Unsupported vacancy requirements must be reported as missing keywords or warnings.
+- Every suggested edit must identify an exact fragment from the stored resume.
+- Deterministic code rejects missing, duplicated, identical, or overlapping replacements.
+- Applied and rejected suggestions remain visible for review.
+
+> [!IMPORTANT]
+> No language model can mathematically guarantee factual correctness. DevCareer adds evidence-preserving guardrails and keeps the final result reviewable; the user remains responsible for confirming every claim before selecting or sending a CV.
+
+## 3. DeepSeek suggests—the application decides
+
+DeepSeek does not write files, update the database, compile PDFs, or select a CV. It returns suggestions through a narrow provider boundary. DevCareer controls everything that happens afterward.
+
+```mermaid
+flowchart LR
+    Vacancy["Vacancy description"] --> Prompt["Evidence-focused prompt"]
+    Resume["Master CV source"] --> Prompt
+    Prompt --> DeepSeek[["DeepSeek API"]]
+    DeepSeek --> Suggestions["Structured suggestions"]
+    Suggestions --> Parser{"Valid JSON<br/>and shape?"}
+
+    Parser -->|"No"| AIFailed["AI_FAILED"]
+    Parser -->|"Yes"| Rules{"Exact, unique,<br/>non-overlapping edit?"}
+    Rules -->|"No"| Rejected["Rejected suggestion"]
+    Rules -->|"Yes"| Derived["Derived LaTeX source"]
+    Derived --> Compiler["Isolated PDF compiler"]
+    Compiler --> Review["Human review"]
+    Rejected --> Review
+    Review --> Selected["User selects the CV"]
+```
+
+### What crosses the DeepSeek boundary
+
+| DeepSeek receives | DeepSeek returns | DeepSeek never controls |
+| --- | --- | --- |
+| Company, job title, vacancy description, and selected resume source | Spanish summary, matched keywords, missing keywords, warnings, and proposed replacements | Database writes, replacement acceptance, LaTeX compilation, PDF storage, or CV selection |
+
+The backend uses an OpenAI-compatible client configured for DeepSeek. The provider is replaceable because the application workflow depends on a `CvAnalysisProvider` contract rather than directly on the vendor SDK.
+
+The response is requested as JSON and parsed as untrusted data. Empty output, invalid JSON, or an invalid structure produces an `AI_FAILED` analysis. Valid suggestions still pass through the deterministic replacement engine before the derived source is compiled.
+
+The DeepSeek API key stays in the backend environment and is never sent to the browser. Generating an analysis does send the vacancy description and resume source to DeepSeek, so users should review DeepSeek's data policies before processing sensitive information.
+
+## Architecture at a glance
+
+| Component | Responsibility | Local address |
+| --- | --- | --- |
+| React web application | Application management, timelines, analysis review, and CV selection | `http://localhost:5173` |
+| NestJS API | Validation, business workflows, DeepSeek orchestration, and persistence | `http://localhost:3000/api` |
+| PostgreSQL | Applications, timeline events, resume versions, and analyses | `localhost:5432` |
+| LaTeX service | Constrained LaTeX-to-PDF compilation and one-page validation | `http://localhost:3001` |
+
+The browser communicates only with the API. Database credentials, the DeepSeek key, compilation, and generated PDF storage remain behind the backend boundary.
+
+## Run locally
+
+### Requirements
 
 - Node.js 22 or a newer compatible LTS release.
-- npm, included with Node.js.
+- npm.
 - Docker with Docker Compose.
-- A DeepSeek API key if you want to generate new CV analyses.
+- A DeepSeek API key for generating new analyses.
 
-The rest of the application can start without a DeepSeek API key. Only analysis generation requires it.
+### 1. Start PostgreSQL and the compiler
 
-## Local setup
-
-Run the following commands from the repository root unless a step says otherwise.
-
-### 1. Start PostgreSQL and the LaTeX compiler
+From the repository root:
 
 ```bash
 docker compose up -d db latex-compiler
-```
-
-The first LaTeX image build can take several minutes because it installs the TeX packages needed to compile resumes.
-
-Check that both containers are running:
-
-```bash
 docker compose ps
 ```
 
-The `latex-compiler` service should eventually report `healthy`.
+The first compiler build can take several minutes. Wait until `latex-compiler` reports `healthy`.
 
 ### 2. Configure the API
-
-Create your local environment file from the safe template:
 
 ```bash
 cp api/.env.example api/.env
 ```
 
-Open `api/.env` and add your DeepSeek API key:
+Add your key to `api/.env` when you want to generate analyses:
 
 ```dotenv
 DEEPSEEK_API_KEY=your_api_key_here
 ```
 
-Do not commit `api/.env`. It is intentionally ignored because it may contain secrets.
-
-The available API variables are:
+The local `.env` file is ignored by Git and must never be committed.
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `DATABASE_URL` | Yes | PostgreSQL connection string used by Prisma. |
-| `PORT` | No | API port. The default is `3000`. |
-| `DEEPSEEK_API_KEY` | For CV analysis | Authenticates requests to DeepSeek. |
-| `DEEPSEEK_MODEL` | No | DeepSeek model used for analysis. |
-| `LATEX_COMPILER_URL` | No | Address of the LaTeX service. |
-| `LATEX_COMPILER_TIMEOUT_MS` | No | Maximum time the API waits for compilation. |
+| `DATABASE_URL` | Yes | PostgreSQL connection used by Prisma. |
+| `PORT` | No | API port; defaults to `3000`. |
+| `DEEPSEEK_API_KEY` | For new analyses | Authenticates server-side DeepSeek requests. |
+| `DEEPSEEK_MODEL` | No | Selects the DeepSeek model. |
+| `LATEX_COMPILER_URL` | No | Configures the compiler address. |
+| `LATEX_COMPILER_TIMEOUT_MS` | No | Limits how long the API waits for compilation. |
 
-### 3. Install dependencies
-
-Install API dependencies:
+### 3. Install dependencies and prepare the database
 
 ```bash
 cd api
 npm ci
-cd ..
-```
-
-Install web dependencies:
-
-```bash
-cd web
-npm ci
-cd ..
-```
-
-The LaTeX service has no third-party npm dependencies; Docker builds it directly from its source files.
-
-### 4. Prepare the database
-
-Run these commands inside the API directory:
-
-```bash
-cd api
 npx prisma generate
 npx prisma migrate deploy
+cd ../web
+npm ci
 cd ..
 ```
 
-`prisma generate` creates the typed database client used by the API. `prisma migrate deploy` applies the committed database migrations to PostgreSQL.
+### 4. Optionally load demonstration data
 
-### 5. Optionally load sample data
-
-The seed creates a master resume, two applications with analysis history, and one additional draft application.
-
-> **Warning:** the seed deletes all existing application, timeline, analysis, and resume records before inserting the sample data. Use it only with a development database whose contents you can replace.
+> [!WARNING]
+> The seed deletes existing application, timeline, analysis, and resume records before inserting sample data. Run it only against a development database whose contents you can replace.
 
 ```bash
 cd api
@@ -128,115 +171,57 @@ npm run seed
 cd ..
 ```
 
-## Run the application
+### 5. Start DevCareer
 
-Keep Docker running and open two terminals.
-
-In the first terminal, start the API:
+API terminal:
 
 ```bash
 cd api
 npm run start:dev
 ```
 
-In the second terminal, start the web application:
+Web terminal:
 
 ```bash
 cd web
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser.
+Open **http://localhost:5173**.
 
-## Verify the services
+## Quality checks
 
-Check the LaTeX compiler directly:
-
-```bash
-curl http://localhost:3001/health
-```
-
-The expected response is:
-
-```json
-{"status":"ok"}
-```
-
-The API does not expose a general health endpoint. A `404` response from `http://localhost:3000/api` is therefore normal; use the web application to exercise its resource endpoints.
-
-## Code quality commands
-
-Run API checks from `api`:
+API:
 
 ```bash
+cd api
 npm run format:check
 npm run lint
 npm run build
 ```
 
-Run web checks from `web`:
+Web:
 
 ```bash
+cd web
 npm run lint
 npm run build
 ```
 
-Build artifacts are written to each package's `dist` directory and are ignored by Git.
-
-## Production-style local execution
-
-Build and start the API:
+Compiler health check:
 
 ```bash
-cd api
-npm run build
-npm run start:prod
+curl http://localhost:3001/health
 ```
 
-Build and preview the web application:
+Expected response:
 
-```bash
-cd web
-npm run build
-npm run preview
+```json
+{"status":"ok"}
 ```
 
-Vite preview is useful for checking the production frontend bundle locally. It is not a production web server deployment strategy.
-
-## Common problems
-
-### PostgreSQL cannot bind to port 5432
-
-Another PostgreSQL instance may already be using the port. Stop that instance or change both the Compose port mapping and `DATABASE_URL` to matching values.
-
-### The LaTeX compiler is unhealthy
-
-Inspect its logs:
-
-```bash
-docker compose logs latex-compiler
-```
-
-Wait for the initial image build to finish, then confirm that `http://localhost:3001/health` responds successfully.
-
-### The API reports that `DATABASE_URL` is required
-
-Confirm that `api/.env` exists and that you started NestJS from the `api` directory.
-
-### CV analysis reports that the API key is not configured
-
-Set `DEEPSEEK_API_KEY` in `api/.env`, then restart the API process so it loads the new value.
-
-### The browser cannot reach the API
-
-Confirm that the API is listening on port `3000`. The development proxy in `web/vite.config.ts` sends `/api` requests to that port.
-
-## Stop local infrastructure
-
-Stop the Docker containers without deleting database data:
+Stop the local infrastructure without deleting the PostgreSQL volume:
 
 ```bash
 docker compose down
 ```
-
-The PostgreSQL data remains in the `pgdata` Docker volume for the next startup.
