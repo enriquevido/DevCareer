@@ -1,11 +1,11 @@
-import { apiRequest, getApiUrl } from "../../lib/api-client";
+import { apiRequest, getApiUrl } from "@/shared/api/http-client";
 import type {
   CvAnalysis,
   CvAnalysisRecord,
   CvAnalysisSummary,
   GenerateCvAnalysisInput,
   SelectedCvAnalysis,
-} from "../../types/api";
+} from "@/domain/cv-analysis";
 
 export const cvAnalysisQueryKeys = {
   all: ["cv-analyses"] as const,

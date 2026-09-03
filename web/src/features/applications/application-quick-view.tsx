@@ -1,9 +1,9 @@
 import { ExternalLink, X } from "lucide-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import type { ApplicationRecord } from "../../types/api";
+import type { ApplicationRecord } from "@/domain/application";
+import { formatDateTime } from "@/shared/lib/date-format";
 import {
-  formatApplicationDateTime,
   getApplicationWorkplaceLabel,
   getSafeApplicationUrl,
 } from "./application-format";
@@ -135,7 +135,7 @@ export function ApplicationQuickView({
 
         <QuickViewField label="Última actualización">
           <time dateTime={application.updatedAt}>
-            {formatApplicationDateTime(application.updatedAt)}
+            {formatDateTime(application.updatedAt)}
           </time>
         </QuickViewField>
 

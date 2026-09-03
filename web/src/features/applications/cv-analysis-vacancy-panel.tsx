@@ -1,4 +1,4 @@
-import type { ApplicationRecord } from "../../types/api";
+import type { ApplicationRecord } from "@/domain/application";
 
 type CvAnalysisVacancyPanelProps = {
   application: ApplicationRecord;

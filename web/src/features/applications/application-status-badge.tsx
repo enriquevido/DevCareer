@@ -1,4 +1,4 @@
-import type { ApplicationStatus } from "../../types/api";
+import type { ApplicationStatus } from "@/domain/application";
 import { getApplicationStatusPresentation } from "./application-status";
 
 type ApplicationStatusBadgeProps = {

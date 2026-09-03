@@ -1,4 +1,4 @@
-import type { CvAnalysisRecord, CvAnalysisStatus } from "../../types/api";
+import type { CvAnalysisRecord, CvAnalysisStatus } from "@/domain/cv-analysis";
 
 export type CvAnalysisStatusPresentation = {
   badgeClassName: string;

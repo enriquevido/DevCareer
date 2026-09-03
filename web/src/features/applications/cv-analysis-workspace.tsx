@@ -1,5 +1,6 @@
 import { useState } from "react";
-import type { ApplicationRecord, CvAnalysis } from "../../types/api";
+import type { ApplicationRecord } from "@/domain/application";
+import type { CvAnalysis } from "@/domain/cv-analysis";
 import { CvAnalysisRecommendationsPanel } from "./cv-analysis-recommendations-panel";
 import { CvAnalysisResultPanel } from "./cv-analysis-result-panel";
 import { CvAnalysisVacancyPanel } from "./cv-analysis-vacancy-panel";

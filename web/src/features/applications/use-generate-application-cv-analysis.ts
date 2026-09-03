@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import type { CvAnalysisSummary } from "../../types/api";
+import type { CvAnalysisSummary } from "@/domain/cv-analysis";
 import { fetchCurrentResume, resumeQueryKeys } from "../resume/resume-api";
 import {
   cvAnalysisQueryKeys,

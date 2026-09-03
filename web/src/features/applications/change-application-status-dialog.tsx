@@ -1,11 +1,11 @@
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import type { FormEvent } from "react";
-import { ModalDialog } from "../../components/modal-dialog";
+import { ModalDialog } from "@/shared/ui/modal-dialog";
 import type {
   ApplicationStatus,
   UpdateApplicationStatusInput,
-} from "../../types/api";
+} from "@/domain/application";
 import { APPLICATION_STATUS_OPTIONS } from "./application-status";
 
 type ChangeApplicationStatusDialogProps = {

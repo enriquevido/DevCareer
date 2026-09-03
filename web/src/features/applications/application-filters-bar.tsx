@@ -1,6 +1,6 @@
 import { ChevronDown, Search, X } from "lucide-react";
 import type { ChangeEvent } from "react";
-import type { ApplicationStatus } from "../../types/api";
+import type { ApplicationStatus } from "@/domain/application";
 import { APPLICATION_STATUS_OPTIONS } from "./application-status";
 
 type ApplicationFiltersBarProps = {

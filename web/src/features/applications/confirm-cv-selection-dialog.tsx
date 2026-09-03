@@ -1,5 +1,5 @@
-import { ModalDialog } from "../../components/modal-dialog";
-import type { CvAnalysis } from "../../types/cv-analysis";
+import { ModalDialog } from "@/shared/ui/modal-dialog";
+import type { CvAnalysis } from "@/domain/cv-analysis";
 
 type ConfirmCvSelectionDialogProps = {
   analysis: CvAnalysis;

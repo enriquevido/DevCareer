@@ -2,7 +2,7 @@ import { Menu } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent } from "react";
 import { Outlet } from "react-router-dom";
-import { useSidebarPreference } from "../hooks/use-sidebar-preference";
+import { useSidebarPreference } from "./use-sidebar-preference";
 import { Sidebar } from "./sidebar";
 
 const MOBILE_NAVIGATION_DIALOG_ID = "mobile-navigation-dialog";

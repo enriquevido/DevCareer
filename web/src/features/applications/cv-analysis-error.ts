@@ -1,4 +1,4 @@
-import { ApiError } from "../../lib/api-client";
+import { ApiError } from "@/shared/api/http-client";
 
 export function getCvAnalysisErrorMessage(
   error: unknown,

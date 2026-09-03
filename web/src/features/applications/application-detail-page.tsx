@@ -4,9 +4,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import type {
   ApplicationRecord,
   ApplicationWithEvents,
-  CvAnalysisSummary,
   UpdateApplicationStatusInput,
-} from "../../types/api";
+} from "@/domain/application";
+import type { CvAnalysisSummary } from "@/domain/cv-analysis";
 import {
   applicationQueryKeys,
   changeApplicationStatus,

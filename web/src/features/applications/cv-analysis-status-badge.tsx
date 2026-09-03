@@ -1,4 +1,4 @@
-import type { CvAnalysisStatus } from "../../types/api";
+import type { CvAnalysisStatus } from "@/domain/cv-analysis";
 import { getCvAnalysisStatusPresentation } from "./cv-analysis-status";
 
 type CvAnalysisStatusBadgeProps = {

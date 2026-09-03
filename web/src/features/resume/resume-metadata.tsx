@@ -1,4 +1,4 @@
-import type { ResumeVersion } from "../../types/api";
+import type { ResumeVersion } from "@/domain/resume";
 
 type ResumeMetadataProps = {
   resume: ResumeVersion;

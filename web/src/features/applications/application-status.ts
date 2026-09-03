@@ -1,4 +1,4 @@
-import { APPLICATION_STATUSES, type ApplicationStatus } from "../../types/api";
+import { APPLICATION_STATUSES, type ApplicationStatus } from "@/domain/application";
 
 export type ApplicationStatusPresentation = {
   badgeClassName: string;

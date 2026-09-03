@@ -1,4 +1,4 @@
-import { ApiError } from "../../lib/api-client";
+import { ApiError } from "@/shared/api/http-client";
 
 const RESUME_UPLOAD_ERROR_MESSAGES = {
   INVALID_FILE_NAME: "El nombre del archivo no es válido.",

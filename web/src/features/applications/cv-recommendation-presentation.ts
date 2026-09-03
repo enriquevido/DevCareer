@@ -1,7 +1,7 @@
 import type {
   ReplacementRejectionReason,
   ReplacementStatus,
-} from "../../types/api";
+} from "@/domain/cv-analysis";
 
 export type ReplacementStatusPresentation = {
   badgeClassName: string;

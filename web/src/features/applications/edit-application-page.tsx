@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type {
   ApplicationWithEvents,
   UpdateApplicationInput,
-} from "../../types/api";
+} from "@/domain/application";
 import {
   applicationQueryKeys,
   fetchApplication,

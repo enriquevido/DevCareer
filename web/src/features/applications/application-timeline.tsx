@@ -1,6 +1,6 @@
-import type { TimelineEvent } from "../../types/application";
+import type { TimelineEvent } from "@/domain/application";
+import { formatDateTime } from "@/shared/lib/date-format";
 import { ApplicationStatusBadge } from "./application-status-badge";
-import { formatApplicationDateTime } from "./application-format";
 
 type ApplicationTimelineProps = {
   events: readonly TimelineEvent[];
@@ -77,7 +77,7 @@ export function ApplicationTimeline({ events }: ApplicationTimelineProps) {
                     dateTime={event.createdAt}
                     className="mt-1 block text-xs text-foreground-subtle"
                   >
-                    {formatApplicationDateTime(event.createdAt)}
+                    {formatDateTime(event.createdAt)}
                   </time>
 
                   {note ? (

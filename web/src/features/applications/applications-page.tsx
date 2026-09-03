@@ -2,12 +2,12 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Plus, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDebouncedValue } from "../../hooks/use-debounced-value";
+import { useDebouncedValue } from "@/shared/hooks/use-debounced-value";
 import type {
   ApplicationFilters,
   ApplicationRecord,
   ApplicationStatus,
-} from "../../types/api";
+} from "@/domain/application";
 import { applicationQueryKeys, fetchApplications } from "./application-api";
 import { getApplicationErrorMessage } from "./application-error";
 import { ApplicationFiltersBar } from "./application-filters-bar";

@@ -1,4 +1,4 @@
-import { apiRequest } from "../../lib/api-client";
+import { apiRequest } from "@/shared/api/http-client";
 import type {
   ApplicationFilters,
   ApplicationRecord,
@@ -7,7 +7,7 @@ import type {
   CreateApplicationInput,
   UpdateApplicationInput,
   UpdateApplicationStatusInput,
-} from "../../types/api";
+} from "@/domain/application";
 
 export const applicationQueryKeys = {
   all: ["applications"] as const,

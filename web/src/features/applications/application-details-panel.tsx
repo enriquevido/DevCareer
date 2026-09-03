@@ -1,9 +1,7 @@
 import type { ReactNode } from "react";
-import type { ApplicationRecord } from "../../types/api";
-import {
-  formatApplicationDateTime,
-  getApplicationWorkplaceLabel,
-} from "./application-format";
+import type { ApplicationRecord } from "@/domain/application";
+import { formatDateTime } from "@/shared/lib/date-format";
+import { getApplicationWorkplaceLabel } from "./application-format";
 
 type ApplicationDetailsPanelProps = {
   application: ApplicationRecord;
@@ -77,13 +75,13 @@ export function ApplicationDetailsPanel({
 
         <ApplicationDetailField label="Creada">
           <time dateTime={application.createdAt}>
-            {formatApplicationDateTime(application.createdAt)}
+            {formatDateTime(application.createdAt)}
           </time>
         </ApplicationDetailField>
 
         <ApplicationDetailField label="Última actualización">
           <time dateTime={application.updatedAt}>
-            {formatApplicationDateTime(application.updatedAt)}
+            {formatDateTime(application.updatedAt)}
           </time>
         </ApplicationDetailField>
       </dl>

@@ -1,5 +1,5 @@
-import { ApiError, apiRequest, getApiUrl } from "../../lib/api-client";
-import type { ResumeVersion } from "../../types/api";
+import { ApiError, apiRequest, getApiUrl } from "@/shared/api/http-client";
+import type { ResumeVersion } from "@/domain/resume";
 
 export const resumeQueryKeys = {
   all: ["resumes"] as const,

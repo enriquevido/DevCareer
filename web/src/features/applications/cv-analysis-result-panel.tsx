@@ -1,4 +1,4 @@
-import type { CvAnalysis } from "../../types/api";
+import type { CvAnalysis } from "@/domain/cv-analysis";
 
 type CvAnalysisResultPanelProps = {
   analysis: CvAnalysis;

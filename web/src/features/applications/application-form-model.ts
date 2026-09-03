@@ -2,7 +2,7 @@ import type {
   ApplicationRecord,
   CreateApplicationInput,
   UpdateApplicationInput,
-} from "../../types/api";
+} from "@/domain/application";
 
 export type ApplicationFormMode = "create" | "edit";
 

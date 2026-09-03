@@ -1,6 +1,6 @@
 import type { KeyboardEvent } from "react";
-import type { ApplicationRecord } from "../../types/api";
-import { formatApplicationDate } from "./application-format";
+import type { ApplicationRecord } from "@/domain/application";
+import { formatDate } from "@/shared/lib/date-format";
 import { ApplicationStatusBadge } from "./application-status-badge";
 
 type ApplicationsTableProps = {
@@ -98,7 +98,7 @@ function ApplicationTableRow({
 
       <td className="whitespace-nowrap px-4 py-2.5 text-sm text-foreground-muted">
         <time dateTime={application.updatedAt}>
-          {formatApplicationDate(application.updatedAt)}
+          {formatDate(application.updatedAt)}
         </time>
       </td>
 

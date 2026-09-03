@@ -1,5 +1,5 @@
-import { ModalDialog } from "../../components/modal-dialog";
-import type { ApplicationRecord } from "../../types/application";
+import { ModalDialog } from "@/shared/ui/modal-dialog";
+import type { ApplicationRecord } from "@/domain/application";
 
 type DeleteApplicationDialogProps = {
   application: Pick<ApplicationRecord, "company" | "jobTitle">;

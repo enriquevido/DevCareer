@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import type { CvAnalysisSummary } from "../../types/api";
-import { formatApplicationDateTime } from "./application-format";
+import type { CvAnalysisSummary } from "@/domain/cv-analysis";
+import { formatDateTime } from "@/shared/lib/date-format";
 import { CvAnalysisStatusBadge } from "./cv-analysis-status-badge";
 
 type ApplicationAnalysisHistoryProps = {
@@ -97,7 +97,7 @@ export function ApplicationAnalysisHistory({
 
                       <dd className="text-foreground-muted">
                         <time dateTime={analysis.createdAt}>
-                          {formatApplicationDateTime(analysis.createdAt)}
+                          {formatDateTime(analysis.createdAt)}
                         </time>
                       </dd>
                     </div>

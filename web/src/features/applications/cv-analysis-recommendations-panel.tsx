@@ -1,7 +1,7 @@
 import type {
   CvAnalysisRecommendations,
   CvRecommendation,
-} from "../../types/api";
+} from "@/domain/cv-analysis";
 import {
   getReplacementRejectionReasonLabel,
   getReplacementStatusPresentation,

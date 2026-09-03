@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import type { CvAnalysis } from "../../types/api";
-import { formatApplicationDateTime } from "./application-format";
+import type { CvAnalysis } from "@/domain/cv-analysis";
+import { formatDateTime } from "@/shared/lib/date-format";
 import {
   getCvAnalysisPdfDownloadUrl,
   getCvAnalysisSourceDownloadUrl,
@@ -193,7 +193,7 @@ export function CvAnalysisDetailHeader({
 
           <dd className="mt-1 text-sm text-foreground">
             <time dateTime={analysis.createdAt}>
-              {formatApplicationDateTime(analysis.createdAt)}
+              {formatDateTime(analysis.createdAt)}
             </time>
           </dd>
         </div>
