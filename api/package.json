@@ -7,13 +7,13 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"{src,prisma}/**/*.ts\"",
-    "format:check": "prettier --check \"{src,prisma}/**/*.ts\"",
+    "format": "prettier --write \"{src,prisma}/**/*.ts\" prisma.config.ts",
+    "format:check": "prettier --check \"{src,prisma}/**/*.ts\" prisma.config.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/src/main.js",
-    "lint": "eslint \"{src,prisma}/**/*.ts\"",
+    "lint": "eslint \"{src,prisma}/**/*.ts\" prisma.config.ts",
     "lint:fix": "npm run lint -- --fix",
     "seed": "prisma db seed"
   },
@@ -38,6 +38,7 @@
     "@types/express": "^5.0.0",
     "@types/multer": "^2.2.0",
     "@types/node": "^24.0.0",
+    "dotenv": "^17.4.1",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
@@ -49,8 +50,5 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
   }
 }
