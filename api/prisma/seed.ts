@@ -1,5 +1,10 @@
-import { PrismaClient } from '@prisma/client';
+import {
+  ApplicationStatus,
+  CvAnalysisStatus,
+  PrismaClient,
+} from '@prisma/client';
 import { createHash } from 'node:crypto';
+import type { CvAnalysisRecommendations } from '../src/cv-analyses/domain/cv-analysis-recommendations';
 
 const prisma = new PrismaClient();
 
@@ -44,14 +49,16 @@ function sha256(value: string): string {
 }
 
 async function clearDatabase() {
-  await prisma.application.updateMany({
-    data: { selectedCvAnalysisId: null },
-  });
+  await prisma.$transaction(async (transaction) => {
+    await transaction.application.updateMany({
+      data: { selectedCvAnalysisId: null },
+    });
 
-  await prisma.cvAnalysis.deleteMany();
-  await prisma.timelineEvent.deleteMany();
-  await prisma.application.deleteMany();
-  await prisma.resumeVersion.deleteMany();
+    await transaction.cvAnalysis.deleteMany();
+    await transaction.timelineEvent.deleteMany();
+    await transaction.application.deleteMany();
+    await transaction.resumeVersion.deleteMany();
+  });
 }
 
 async function main() {
@@ -77,11 +84,11 @@ async function main() {
       isRemote: true,
       source: 'Company website',
       notes: 'Review the portfolio before requesting a CV analysis.',
-      status: 'DRAFT',
+      status: ApplicationStatus.DRAFT,
       createdAt: new Date('2026-08-02T10:00:00Z'),
       events: {
         create: {
-          status: 'DRAFT',
+          status: ApplicationStatus.DRAFT,
           note: 'Application draft created',
           createdAt: new Date('2026-08-02T10:00:00Z'),
         },
@@ -101,17 +108,17 @@ async function main() {
       salaryRange: 'MXN 18,000 - 22,000/month',
       source: 'University portal',
       notes: 'The vacancy closely matches the current backend project.',
-      status: 'APPLIED',
+      status: ApplicationStatus.APPLIED,
       createdAt: new Date('2026-08-03T11:00:00Z'),
       events: {
         create: [
           {
-            status: 'DRAFT',
+            status: ApplicationStatus.DRAFT,
             note: 'Application draft created',
             createdAt: new Date('2026-08-03T11:00:00Z'),
           },
           {
-            status: 'APPLIED',
+            status: ApplicationStatus.APPLIED,
             note: 'Application submitted through the university portal',
             createdAt: new Date('2026-08-05T16:30:00Z'),
           },
@@ -124,7 +131,7 @@ async function main() {
     data: {
       applicationId: backendApplication.id,
       resumeVersionId: resumeVersion.id,
-      status: 'COMPILE_FAILED',
+      status: CvAnalysisStatus.COMPILE_FAILED,
       model: 'deepseek-v4-flash',
       summaryEs:
         'El CV ya coincide con las tecnologias principales de la vacante. La recomendacion valida refuerza la experiencia de pruebas sin agregar herramientas nuevas.',
@@ -141,7 +148,7 @@ async function main() {
         warningsEs: [
           'CI/CD aparece en la vacante, pero no esta respaldado por el CV maestro.',
         ],
-        recommendations: [
+        items: [
           {
             section: 'Experience',
             originalText:
@@ -151,16 +158,14 @@ async function main() {
             rationaleEs:
               'La nueva redaccion incorpora la palabra clave tested, respaldada por la seccion de proyectos del CV.',
             matchedKeywords: ['tested', 'REST APIs'],
-            validation: {
-              status: 'APPLIED',
-              reason: null,
-            },
+            status: 'APPLIED',
+            rejectionReason: null,
           },
         ],
-      },
+      } satisfies CvAnalysisRecommendations,
       derivedSource: derivedResumeSource,
       errorMessage:
-        'LaTeX compilation is unavailable until the compilation milestone is implemented.',
+        'Mocked LaTeX compilation failure for development seed data.',
       createdAt: new Date('2026-08-04T12:00:00Z'),
     },
   });
@@ -177,22 +182,22 @@ async function main() {
       source: 'LinkedIn',
       notes:
         'The vacancy contains several requirements that are not present in the current CV.',
-      status: 'RESPONSE_RECEIVED',
+      status: ApplicationStatus.RESPONSE_RECEIVED,
       createdAt: new Date('2026-08-06T08:30:00Z'),
       events: {
         create: [
           {
-            status: 'DRAFT',
+            status: ApplicationStatus.DRAFT,
             note: 'Application draft created',
             createdAt: new Date('2026-08-06T08:30:00Z'),
           },
           {
-            status: 'APPLIED',
+            status: ApplicationStatus.APPLIED,
             note: 'Application submitted through LinkedIn',
             createdAt: new Date('2026-08-07T14:00:00Z'),
           },
           {
-            status: 'RESPONSE_RECEIVED',
+            status: ApplicationStatus.RESPONSE_RECEIVED,
             note: 'Recruiter requested additional availability information',
             createdAt: new Date('2026-08-09T17:15:00Z'),
           },
@@ -205,7 +210,7 @@ async function main() {
     data: {
       applicationId: platformApplication.id,
       resumeVersionId: resumeVersion.id,
-      status: 'AI_FAILED',
+      status: CvAnalysisStatus.AI_FAILED,
       model: 'deepseek-v4-flash',
       errorMessage: 'Mocked AI provider failure for development seed data.',
       createdAt: new Date('2026-08-08T15:00:00Z'),

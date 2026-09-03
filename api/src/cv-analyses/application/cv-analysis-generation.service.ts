@@ -12,6 +12,7 @@ import type {
   LatexCompilationResult,
 } from '../../integrations/latex/latex-compilation.types';
 import { CompiledPdfStorage } from '../../storage/compiled-pdf.storage';
+import type { CvAnalysisRecommendations } from '../domain/cv-analysis-recommendations';
 import { parseCvAnalysisResponse } from '../domain/cv-analysis-response.parser';
 import type { CvAnalysisResult } from '../domain/cv-analysis.types';
 import {
@@ -122,7 +123,7 @@ export class CvAnalysisGenerationService {
         missingKeywords: result.missingKeywords,
         warningsEs: result.warningsEs,
         items: replacementResult.recommendations,
-      },
+      } satisfies CvAnalysisRecommendations,
       derivedSource: replacementResult.derivedSource,
     };
 
