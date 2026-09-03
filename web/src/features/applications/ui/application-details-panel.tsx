@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { ApplicationRecord } from "@/domain/application";
 import { formatDateTime } from "@/shared/lib/date-format";
-import { getApplicationWorkplaceLabel } from "./application-format";
+import { getApplicationWorkplaceLabel } from "../model/application-format";
 
 type ApplicationDetailsPanelProps = {
   application: ApplicationRecord;

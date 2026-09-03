@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import type { CvAnalysisSummary } from "@/domain/cv-analysis";
-import { fetchCurrentResume, resumeQueryKeys } from "../resume/resume-api";
+import { fetchCurrentResume, resumeQueryKeys } from "@/features/resume/resume-api";
 import {
   cvAnalysisQueryKeys,
   generateApplicationCvAnalysis,
-} from "./cv-analysis-api";
-import { getCvAnalysisErrorMessage } from "./cv-analysis-error";
+} from "@/features/applications/cv-analysis-api";
+import { getCvAnalysisErrorMessage } from "@/features/applications/cv-analysis-error";
 
 type UseGenerateApplicationCvAnalysisOptions = {
   applicationId: string | undefined;

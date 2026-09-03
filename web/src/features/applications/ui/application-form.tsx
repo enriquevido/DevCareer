@@ -8,13 +8,13 @@ import {
 import {
   hasApplicationFormChanges,
   validateApplicationForm,
-} from "./application-form-model";
+} from "../model/application-form-model";
 import type {
   ApplicationFormErrors,
   ApplicationFormMode,
   ApplicationFormTextField,
   ApplicationFormValues,
-} from "./application-form-model";
+} from "../model/application-form-model";
 
 type ApplicationFormProps = {
   initialValues: ApplicationFormValues;

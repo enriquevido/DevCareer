@@ -6,7 +6,7 @@ import { formatDateTime } from "@/shared/lib/date-format";
 import {
   getApplicationWorkplaceLabel,
   getSafeApplicationUrl,
-} from "./application-format";
+} from "../model/application-format";
 import { ApplicationStatusBadge } from "./application-status-badge";
 
 type ApplicationQuickViewProps = {

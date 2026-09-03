@@ -1,4 +1,4 @@
-import type { ApplicationMetrics } from "./application-metrics";
+import type { ApplicationMetrics } from "../model/application-metrics";
 
 type ApplicationMetricsStripProps = {
   isLoading: boolean;

@@ -1,7 +1,7 @@
 import { ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { ApplicationRecord } from "@/domain/application";
-import { getSafeApplicationUrl } from "./application-format";
+import { getSafeApplicationUrl } from "../model/application-format";
 import { ApplicationStatusBadge } from "./application-status-badge";
 
 type ApplicationDetailHeaderProps = {

@@ -1,5 +1,5 @@
 import type { ApplicationStatus } from "@/domain/application";
-import { getApplicationStatusPresentation } from "./application-status";
+import { getApplicationStatusPresentation } from "../model/application-status";
 
 type ApplicationStatusBadgeProps = {
   status: ApplicationStatus;

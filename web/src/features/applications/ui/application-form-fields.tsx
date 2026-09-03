@@ -1,5 +1,5 @@
 import type { HTMLInputTypeAttribute } from "react";
-import type { ApplicationFormTextField } from "./application-form-model";
+import type { ApplicationFormTextField } from "../model/application-form-model";
 
 type FieldChangeHandler = (
   field: ApplicationFormTextField,

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApplicationWithEvents } from "@/domain/application";
-import { applicationQueryKeys, fetchApplication } from "./application-api";
+import { applicationQueryKeys, fetchApplication } from "@/features/applications";
 import {
   cvAnalysisQueryKeys,
   fetchCvAnalysis,

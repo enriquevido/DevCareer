@@ -1,7 +1,7 @@
 import { ChevronDown, Search, X } from "lucide-react";
 import type { ChangeEvent } from "react";
 import type { ApplicationStatus } from "@/domain/application";
-import { APPLICATION_STATUS_OPTIONS } from "./application-status";
+import { APPLICATION_STATUS_OPTIONS } from "../model/application-status";
 
 type ApplicationFiltersBarProps = {
   isDisabled?: boolean;

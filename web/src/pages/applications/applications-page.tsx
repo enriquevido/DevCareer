@@ -8,13 +8,16 @@ import type {
   ApplicationRecord,
   ApplicationStatus,
 } from "@/domain/application";
-import { applicationQueryKeys, fetchApplications } from "./application-api";
-import { getApplicationErrorMessage } from "./application-error";
-import { ApplicationFiltersBar } from "./application-filters-bar";
-import { calculateApplicationMetrics } from "./application-metrics";
-import { ApplicationMetricsStrip } from "./application-metrics-strip";
-import { ApplicationQuickView } from "./application-quick-view";
-import { ApplicationsTable } from "./applications-table";
+import {
+  ApplicationFiltersBar,
+  ApplicationMetricsStrip,
+  ApplicationQuickView,
+  ApplicationsTable,
+  applicationQueryKeys,
+  calculateApplicationMetrics,
+  fetchApplications,
+  getApplicationErrorMessage,
+} from "@/features/applications";
 
 type ApplicationsErrorStateProps = {
   message: string;

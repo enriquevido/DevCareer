@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
-import { applicationQueryKeys, createApplication } from "./application-api";
-import { getApplicationErrorMessage } from "./application-error";
-import { ApplicationForm } from "./application-form";
 import {
+  ApplicationForm,
+  applicationQueryKeys,
+  createApplication,
   createEmptyApplicationFormValues,
+  getApplicationErrorMessage,
   toCreateApplicationInput,
-} from "./application-form-model";
-import type { ApplicationFormValues } from "./application-form-model";
+} from "@/features/applications";
+import type { ApplicationFormValues } from "@/features/applications";
 
 const EMPTY_FORM_VALUES = createEmptyApplicationFormValues();
 

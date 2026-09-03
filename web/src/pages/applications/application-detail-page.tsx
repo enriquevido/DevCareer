@@ -8,26 +8,26 @@ import type {
 } from "@/domain/application";
 import type { CvAnalysisSummary } from "@/domain/cv-analysis";
 import {
+  ApplicationDetailHeader,
+  ApplicationDetailsPanel,
+  ApplicationTimeline,
+  ChangeApplicationStatusDialog,
+  DeleteApplicationDialog,
   applicationQueryKeys,
   changeApplicationStatus,
   deleteApplication,
   fetchApplication,
-} from "./application-api";
-import { ApplicationAnalysisHistory } from "./application-analysis-history";
-import { ApplicationDetailHeader } from "./application-detail-header";
+  getApplicationErrorMessage,
+} from "@/features/applications";
+import { ApplicationAnalysisHistory } from "@/features/applications/application-analysis-history";
+import {
+  cvAnalysisQueryKeys,
+  fetchApplicationCvAnalyses,
+} from "@/features/applications/cv-analysis-api";
 import {
   ApplicationDetailErrorState,
   ApplicationDetailLoadingState,
 } from "./application-detail-page-state";
-import { ApplicationDetailsPanel } from "./application-details-panel";
-import { getApplicationErrorMessage } from "./application-error";
-import { ApplicationTimeline } from "./application-timeline";
-import { ChangeApplicationStatusDialog } from "./change-application-status-dialog";
-import {
-  cvAnalysisQueryKeys,
-  fetchApplicationCvAnalyses,
-} from "./cv-analysis-api";
-import { DeleteApplicationDialog } from "./delete-application-dialog";
 import { useGenerateApplicationCvAnalysis } from "./use-generate-application-cv-analysis";
 
 const EMPTY_ANALYSES: readonly CvAnalysisSummary[] = [];

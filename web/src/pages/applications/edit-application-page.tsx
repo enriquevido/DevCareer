@@ -7,17 +7,15 @@ import type {
   UpdateApplicationInput,
 } from "@/domain/application";
 import {
+  ApplicationForm,
   applicationQueryKeys,
   fetchApplication,
-  updateApplication,
-} from "./application-api";
-import { getApplicationErrorMessage } from "./application-error";
-import { ApplicationForm } from "./application-form";
-import {
+  getApplicationErrorMessage,
   getApplicationFormValues,
   toUpdateApplicationInput,
-} from "./application-form-model";
-import type { ApplicationFormValues } from "./application-form-model";
+  updateApplication,
+} from "@/features/applications";
+import type { ApplicationFormValues } from "@/features/applications";
 
 type EditApplicationErrorStateProps = {
   message: string;

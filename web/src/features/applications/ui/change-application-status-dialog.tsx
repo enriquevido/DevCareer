@@ -6,7 +6,7 @@ import type {
   ApplicationStatus,
   UpdateApplicationStatusInput,
 } from "@/domain/application";
-import { APPLICATION_STATUS_OPTIONS } from "./application-status";
+import { APPLICATION_STATUS_OPTIONS } from "../model/application-status";
 
 type ChangeApplicationStatusDialogProps = {
   currentStatus: ApplicationStatus;
