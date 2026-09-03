@@ -49,26 +49,14 @@ export class ApplicationsService {
     });
   }
 
-  async update(id: string, dto: UpdateApplicationDto) {
-    const application = await this.prisma.application.findUnique({
-      where: { id },
-    });
-
-    if (!application) return null;
-
+  update(id: string, dto: UpdateApplicationDto) {
     return this.prisma.application.update({
       where: { id },
       data: dto,
     });
   }
 
-  async changeStatus(id: string, dto: UpdateStatusDto) {
-    const application = await this.prisma.application.findUnique({
-      where: { id },
-    });
-
-    if (!application) return null;
-
+  changeStatus(id: string, dto: UpdateStatusDto) {
     return this.prisma.$transaction([
       this.prisma.application.update({
         where: { id },

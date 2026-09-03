@@ -37,17 +37,13 @@ export class ApplicationsController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateApplicationDto) {
-    const application = await this.applicationsService.update(id, dto);
-    if (!application) throw new NotFoundException('Application not found');
-    return application;
+  update(@Param('id') id: string, @Body() dto: UpdateApplicationDto) {
+    return this.applicationsService.update(id, dto);
   }
 
   @Patch(':id/status')
-  async changeStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
-    const application = await this.applicationsService.changeStatus(id, dto);
-    if (!application) throw new NotFoundException('Application not found');
-    return application;
+  changeStatus(@Param('id') id: string, @Body() dto: UpdateStatusDto) {
+    return this.applicationsService.changeStatus(id, dto);
   }
 
   @Delete(':id')

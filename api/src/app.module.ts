@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER } from '@nestjs/core';
 import { ApplicationsModule } from './applications/applications.module';
+import { PrismaExceptionFilter } from './common/http/prisma-exception.filter';
 import { validateEnvironment } from './config/environment.validation';
 import { CvAnalysesModule } from './cv-analyses/cv-analyses.module';
-import { PrismaModule } from './database/prisma/prisma.module';
 import { ResumesModule } from './resumes/resumes.module';
 
 @Module({
@@ -12,10 +13,15 @@ import { ResumesModule } from './resumes/resumes.module';
       isGlobal: true,
       validate: validateEnvironment,
     }),
-    PrismaModule,
     ApplicationsModule,
     ResumesModule,
     CvAnalysesModule,
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: PrismaExceptionFilter,
+    },
   ],
 })
 export class AppModule {}
