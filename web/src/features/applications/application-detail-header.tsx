@@ -6,19 +6,23 @@ import { ApplicationStatusBadge } from "./application-status-badge";
 
 type ApplicationDetailHeaderProps = {
   application: ApplicationRecord;
+  isDeleteActionDisabled?: boolean;
   isGenerateActionDisabled?: boolean;
   isGeneratingAnalysis?: boolean;
   isStatusActionDisabled?: boolean;
   onChangeStatus: () => void;
+  onDelete?: () => void;
   onGenerateAnalysis?: () => void;
 };
 
 export function ApplicationDetailHeader({
   application,
+  isDeleteActionDisabled,
   isGenerateActionDisabled = false,
   isGeneratingAnalysis = false,
   isStatusActionDisabled = false,
   onChangeStatus,
+  onDelete,
   onGenerateAnalysis,
 }: ApplicationDetailHeaderProps) {
   const safeJobUrl = getSafeApplicationUrl(application.jobUrl);
@@ -37,14 +41,14 @@ export function ApplicationDetailHeader({
       >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-xl font-semibold tracking-[-0.02em] text-foreground">
+            <h1 className="wrap-break-word text-xl font-semibold tracking-[-0.02em] text-foreground">
               {application.company}
             </h1>
 
             <ApplicationStatusBadge status={application.status} />
           </div>
 
-          <p className="mt-1.5 text-sm leading-6 text-foreground-muted">
+          <p className="mt-1.5 wrap-break-word text-sm leading-6 text-foreground-muted">
             {application.jobTitle}
           </p>
 
@@ -104,6 +108,40 @@ export function ApplicationDetailHeader({
           >
             Editar
           </Link>
+
+          {onDelete ? (
+            <button
+              className={[
+                "inline-flex",
+                "h-9",
+                "items-center",
+                "justify-center",
+                "rounded-sm",
+                "border",
+                "border-danger/50",
+                "bg-transparent",
+                "px-3",
+                "text-sm",
+                "font-medium",
+                "text-danger",
+                "transition-colors",
+                "duration-150",
+                "hover:border-danger",
+                "hover:bg-danger/10",
+                "focus-visible:outline-none",
+                "focus-visible:ring-2",
+                "focus-visible:ring-danger",
+                "disabled:cursor-not-allowed",
+                "disabled:opacity-50",
+                "motion-reduce:transition-none",
+              ].join(" ")}
+              disabled={isDeleteActionDisabled}
+              onClick={onDelete}
+              type="button"
+            >
+              Eliminar
+            </button>
+          ) : null}
 
           {onGenerateAnalysis ? (
             <button

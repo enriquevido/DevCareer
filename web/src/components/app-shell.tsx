@@ -8,7 +8,7 @@ import { Sidebar } from "./sidebar";
 const MOBILE_NAVIGATION_DIALOG_ID = "mobile-navigation-dialog";
 
 const MOBILE_SIDEBAR_ID = "mobile-sidebar";
-const DESKTOP_SIDEBAR_ID = "desktop-sidebar";
+const DESKTOP_SIDEBAR_ID = "primary-sidebar";
 
 export function AppShell() {
   const { isSidebarCollapsed, toggleSidebar } = useSidebarPreference();
@@ -16,6 +16,8 @@ export function AppShell() {
   const [isMobileNavigationOpen, setIsMobileNavigationOpen] = useState(false);
 
   const mobileNavigationDialogRef = useRef<HTMLDialogElement>(null);
+  const mobileNavigationTriggerRef = useRef<HTMLButtonElement>(null);
+  const wasMobileNavigationOpenRef = useRef(false);
 
   const openMobileNavigation = useCallback(() => {
     setIsMobileNavigationOpen(true);
@@ -34,12 +36,37 @@ export function AppShell() {
 
     if (isMobileNavigationOpen && !dialog.open) {
       dialog.showModal();
+      wasMobileNavigationOpenRef.current = true;
       return;
     }
 
     if (!isMobileNavigationOpen && dialog.open) {
       dialog.close();
     }
+
+    const shouldRestoreFocus =
+      wasMobileNavigationOpenRef.current &&
+      window.matchMedia("(max-width: 59.999rem)").matches;
+
+    if (shouldRestoreFocus) {
+      mobileNavigationTriggerRef.current?.focus();
+    }
+
+    wasMobileNavigationOpenRef.current = false;
+  }, [isMobileNavigationOpen]);
+
+  useEffect(() => {
+    if (!isMobileNavigationOpen) {
+      return;
+    }
+
+    const previousBodyOverflow = document.body.style.overflow;
+
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+    };
   }, [isMobileNavigationOpen]);
 
   useEffect(() => {
@@ -157,12 +184,16 @@ export function AppShell() {
               "motion-reduce:transition-none",
             ].join(" ")}
             onClick={openMobileNavigation}
+            ref={mobileNavigationTriggerRef}
             type="button"
           >
             <Menu aria-hidden="true" className="size-4.5" strokeWidth={1.8} />
           </button>
 
-          <span className="text-sm font-semibold tracking-[-0.01em]">
+          <span
+            className="text-sm font-semibold tracking-[-0.01em]"
+            translate="no"
+          >
             DevCareer
           </span>
         </header>
@@ -180,6 +211,7 @@ export function AppShell() {
             "xl:px-8",
           ].join(" ")}
           id="main-content"
+          tabIndex={-1}
         >
           <div className="w-full min-w-0">
             <Outlet />
@@ -199,6 +231,7 @@ export function AppShell() {
           "w-full",
           "max-w-none",
           "overflow-hidden",
+          "overscroll-contain",
           "bg-transparent",
           "p-0",
           "backdrop:bg-black/70",
@@ -214,7 +247,7 @@ export function AppShell() {
         onClose={closeMobileNavigation}
         ref={mobileNavigationDialogRef}
       >
-        <div className="h-dvh w-72 max-w-[calc(100vw-2rem)]">
+        <div className="h-dvh w-72 max-w-[calc(100vw-2rem)] overscroll-contain">
           <Sidebar
             id={MOBILE_SIDEBAR_ID}
             onClose={closeMobileNavigation}

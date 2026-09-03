@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import type {
+  ApplicationRecord,
   ApplicationWithEvents,
   CvAnalysisSummary,
   UpdateApplicationStatusInput,
@@ -9,6 +10,7 @@ import type {
 import {
   applicationQueryKeys,
   changeApplicationStatus,
+  deleteApplication,
   fetchApplication,
 } from "./application-api";
 import { ApplicationAnalysisHistory } from "./application-analysis-history";
@@ -25,6 +27,7 @@ import {
   cvAnalysisQueryKeys,
   fetchApplicationCvAnalyses,
 } from "./cv-analysis-api";
+import { DeleteApplicationDialog } from "./delete-application-dialog";
 import { useGenerateApplicationCvAnalysis } from "./use-generate-application-cv-analysis";
 
 const EMPTY_ANALYSES: readonly CvAnalysisSummary[] = [];
@@ -67,8 +70,8 @@ function AnalysisQueryState({
       >
         <header className="border-b border-line px-4 py-3">
           <h2
-            id="application-analyses-error-title"
             className="text-sm font-semibold text-foreground"
+            id="application-analyses-error-title"
           >
             No pudimos cargar los análisis
           </h2>
@@ -116,6 +119,7 @@ function AnalysisQueryState({
 }
 
 export function ApplicationDetailPage() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const { applicationId } = useParams<{
@@ -123,6 +127,7 @@ export function ApplicationDetailPage() {
   }>();
 
   const [isStatusDialogOpen, setIsStatusDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const applicationQuery = useQuery({
     queryKey: applicationQueryKeys.detail(applicationId ?? "missing"),
@@ -184,6 +189,58 @@ export function ApplicationDetailPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => {
+      if (!applicationId) {
+        throw new Error("An application id is required.");
+      }
+
+      return deleteApplication(applicationId);
+    },
+    onSuccess: () => {
+      if (!applicationId) {
+        return;
+      }
+
+      queryClient.setQueriesData<ApplicationRecord[]>(
+        {
+          queryKey: applicationQueryKeys.lists(),
+        },
+        (currentApplications) =>
+          currentApplications?.filter(
+            (application) => application.id !== applicationId,
+          ),
+      );
+
+      queryClient.removeQueries({
+        exact: true,
+        queryKey: applicationQueryKeys.detail(applicationId),
+      });
+
+      queryClient.removeQueries({
+        exact: true,
+        queryKey: cvAnalysisQueryKeys.listByApplication(applicationId),
+      });
+
+      for (const analysis of analysesQuery.data ?? EMPTY_ANALYSES) {
+        queryClient.removeQueries({
+          exact: true,
+          queryKey: cvAnalysisQueryKeys.detail(analysis.id),
+        });
+      }
+
+      void queryClient.invalidateQueries({
+        queryKey: applicationQueryKeys.lists(),
+      });
+
+      setIsDeleteDialogOpen(false);
+
+      void navigate("/applications", {
+        replace: true,
+      });
+    },
+  });
+
   const hasDescription = Boolean(applicationQuery.data?.description?.trim());
 
   const generation = useGenerateApplicationCvAnalysis({
@@ -207,6 +264,28 @@ export function ApplicationDetailPage() {
 
   function handleStatusSubmit(input: UpdateApplicationStatusInput): void {
     statusMutation.mutate(input);
+  }
+
+  function openDeleteDialog(): void {
+    deleteMutation.reset();
+    setIsDeleteDialogOpen(true);
+  }
+
+  function closeDeleteDialog(): void {
+    if (deleteMutation.isPending) {
+      return;
+    }
+
+    deleteMutation.reset();
+    setIsDeleteDialogOpen(false);
+  }
+
+  function confirmDeleteApplication(): void {
+    if (deleteMutation.isPending) {
+      return;
+    }
+
+    deleteMutation.mutate();
   }
 
   if (!applicationId) {
@@ -259,17 +338,32 @@ export function ApplicationDetailPage() {
       )
     : null;
 
+  const deleteErrorMessage = deleteMutation.isError
+    ? getApplicationErrorMessage(
+        deleteMutation.error,
+        "No pudimos eliminar la postulación. Intenta nuevamente.",
+      )
+    : null;
+
+  const isStatusPending = statusMutation.isPending;
+  const isDeletePending = deleteMutation.isPending;
+  const isGenerationPending = generation.isGeneratingAnalysis;
+
   return (
     <>
       <div className="w-full min-w-0">
         <ApplicationDetailHeader
           application={application}
-          isGenerateActionDisabled={statusMutation.isPending}
-          isGeneratingAnalysis={generation.isGeneratingAnalysis}
+          isDeleteActionDisabled={
+            isStatusPending || isDeletePending || isGenerationPending
+          }
+          isGenerateActionDisabled={isStatusPending || isDeletePending}
+          isGeneratingAnalysis={isGenerationPending}
           isStatusActionDisabled={
-            statusMutation.isPending || generation.isGeneratingAnalysis
+            isStatusPending || isDeletePending || isGenerationPending
           }
           onChangeStatus={openStatusDialog}
+          onDelete={openDeleteDialog}
           onGenerateAnalysis={
             generation.canGenerateAnalysis
               ? generation.generateAnalysis
@@ -330,9 +424,19 @@ export function ApplicationDetailPage() {
         <ChangeApplicationStatusDialog
           currentStatus={application.status}
           errorMessage={statusErrorMessage}
-          isSubmitting={statusMutation.isPending}
+          isSubmitting={isStatusPending}
           onCancel={closeStatusDialog}
           onSubmit={handleStatusSubmit}
+        />
+      ) : null}
+
+      {isDeleteDialogOpen ? (
+        <DeleteApplicationDialog
+          application={application}
+          errorMessage={deleteErrorMessage}
+          isSubmitting={isDeletePending}
+          onCancel={closeDeleteDialog}
+          onConfirm={confirmDeleteApplication}
         />
       ) : null}
     </>

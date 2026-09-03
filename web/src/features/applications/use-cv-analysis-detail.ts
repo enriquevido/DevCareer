@@ -117,7 +117,7 @@ export function useCvAnalysisDetail({
   const selectionErrorMessage = selectMutation.isError
     ? getCvAnalysisErrorMessage(
         selectMutation.error,
-        "No pudimos seleccionar este CV.",
+        "No pudimos seleccionar este CV. Revisa que el PDF siga disponible e intenta nuevamente.",
       )
     : null;
 
@@ -131,12 +131,25 @@ export function useCvAnalysisDetail({
     }
   }
 
-  function selectAnalysis(): void {
-    if (!canSelect || selectMutation.isPending) {
+  function resetSelection(): void {
+    if (selectMutation.isPending) {
       return;
     }
 
-    selectMutation.mutate();
+    selectMutation.reset();
+  }
+
+  async function selectAnalysis(): Promise<boolean> {
+    if (!canSelect || selectMutation.isPending) {
+      return false;
+    }
+
+    try {
+      await selectMutation.mutateAsync();
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   return {
@@ -146,6 +159,7 @@ export function useCvAnalysisDetail({
     isPending,
     isSelected,
     isSelecting: selectMutation.isPending,
+    resetSelection,
     retry,
     selectAnalysis,
     selectionErrorMessage,

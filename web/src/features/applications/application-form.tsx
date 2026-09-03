@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import type { FormEvent } from "react";
 import {
   ApplicationRemoteField,
@@ -25,6 +25,17 @@ type ApplicationFormProps = {
   serverError: string | null;
 };
 
+const APPLICATION_FORM_FIELD_ORDER = [
+  "company",
+  "jobTitle",
+  "jobUrl",
+  "source",
+  "location",
+  "salaryRange",
+  "description",
+  "notes",
+] as const satisfies readonly ApplicationFormTextField[];
+
 export function ApplicationForm({
   initialValues,
   isSubmitting,
@@ -34,6 +45,7 @@ export function ApplicationForm({
   serverError,
 }: ApplicationFormProps) {
   const formId = useId();
+  const formRef = useRef<HTMLFormElement>(null);
 
   const [values, setValues] = useState<ApplicationFormValues>(() => ({
     ...initialValues,
@@ -46,6 +58,32 @@ export function ApplicationForm({
 
   function getFieldId(field: ApplicationFormTextField): string {
     return `${formId}-${field}`;
+  }
+
+  function focusFirstInvalidField(
+    validationErrors: ApplicationFormErrors,
+  ): void {
+    const firstInvalidField = APPLICATION_FORM_FIELD_ORDER.find(
+      (field) => validationErrors[field],
+    );
+
+    if (!firstInvalidField) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      const form = formRef.current;
+
+      if (!form) {
+        return;
+      }
+
+      const fieldElement = form.elements.namedItem(firstInvalidField);
+
+      if (fieldElement instanceof HTMLElement) {
+        fieldElement.focus();
+      }
+    });
   }
 
   function handleTextFieldChange(
@@ -81,6 +119,7 @@ export function ApplicationForm({
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
+      focusFirstInvalidField(nextErrors);
       return;
     }
 
@@ -98,7 +137,12 @@ export function ApplicationForm({
     mode === "create" ? "Crear postulación" : "Guardar cambios";
 
   return (
-    <form noValidate onSubmit={handleSubmit}>
+    <form
+      aria-busy={isSubmitting}
+      noValidate
+      onSubmit={handleSubmit}
+      ref={formRef}
+    >
       <section
         aria-labelledby={`${formId}-identity-title`}
         className="border-b border-line py-5"
@@ -149,7 +193,7 @@ export function ApplicationForm({
             id={getFieldId("jobUrl")}
             label="URL de la vacante"
             onChange={handleTextFieldChange}
-            placeholder="https://..."
+            placeholder="https://…"
             type="url"
             value={values.jobUrl}
           />
@@ -277,7 +321,11 @@ export function ApplicationForm({
       </section>
 
       {serverError ? (
-        <div className="border-b border-line py-4" role="alert">
+        <div
+          aria-live="polite"
+          className="border-b border-line py-4"
+          role="alert"
+        >
           <p className="text-sm font-medium text-danger">
             No pudimos guardar la postulación
           </p>
@@ -288,7 +336,17 @@ export function ApplicationForm({
         </div>
       ) : null}
 
-      <footer className="flex items-center justify-end gap-2 py-5">
+      <footer
+        className={[
+          "flex",
+          "flex-col-reverse",
+          "gap-2",
+          "py-5",
+          "sm:flex-row",
+          "sm:items-center",
+          "sm:justify-end",
+        ].join(" ")}
+      >
         <button
           className={[
             "inline-flex",

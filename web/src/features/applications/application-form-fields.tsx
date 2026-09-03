@@ -92,7 +92,7 @@ const TEXTAREA_CLASS_NAME = [
 ].join(" ");
 
 export function ApplicationTextField({
-  autoComplete,
+  autoComplete = "off",
   disabled,
   error,
   field,
@@ -123,6 +123,7 @@ export function ApplicationTextField({
           onChange(field, event.currentTarget.value);
         }}
         placeholder={placeholder}
+        spellCheck={type === "url" ? false : undefined}
         type={type}
         value={value}
       />
@@ -177,6 +178,7 @@ export function ApplicationTextareaField({
       <textarea
         aria-describedby={describedBy || undefined}
         aria-invalid={Boolean(error)}
+        autoComplete="off"
         className={[TEXTAREA_CLASS_NAME, minHeightClassName].join(" ")}
         disabled={disabled}
         id={id}
