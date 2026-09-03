@@ -1,11 +1,15 @@
 import { ApplicationStatus } from '@prisma/client';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
+import { trimOptionalText } from '../../common/validation/text.transformers';
 
 export class UpdateStatusDto {
   @IsEnum(ApplicationStatus)
   status!: ApplicationStatus;
 
+  @Transform(trimOptionalText)
   @IsOptional()
   @IsString()
-  note?: string;
+  @MaxLength(2_000)
+  note?: string | null;
 }

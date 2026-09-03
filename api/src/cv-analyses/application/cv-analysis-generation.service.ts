@@ -43,7 +43,23 @@ export class CvAnalysisGenerationService {
     private readonly compiledPdfStorage: CompiledPdfStorage,
   ) {}
 
-  async generate(applicationId: string, resumeVersionId: string) {
+  async generate(applicationId: string, resumeVersionId?: string) {
+    const resumeVersionQuery = resumeVersionId
+      ? this.prisma.resumeVersion.findUnique({
+          where: { id: resumeVersionId },
+          select: {
+            id: true,
+            source: true,
+          },
+        })
+      : this.prisma.resumeVersion.findFirst({
+          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+          select: {
+            id: true,
+            source: true,
+          },
+        });
+
     const [application, resumeVersion] = await Promise.all([
       this.prisma.application.findUnique({
         where: { id: applicationId },
@@ -54,13 +70,7 @@ export class CvAnalysisGenerationService {
           description: true,
         },
       }),
-      this.prisma.resumeVersion.findUnique({
-        where: { id: resumeVersionId },
-        select: {
-          id: true,
-          source: true,
-        },
-      }),
+      resumeVersionQuery,
     ]);
 
     if (!application) {
@@ -68,7 +78,11 @@ export class CvAnalysisGenerationService {
     }
 
     if (!resumeVersion) {
-      throw new NotFoundException('Resume version not found.');
+      throw new NotFoundException(
+        resumeVersionId
+          ? 'Resume version not found.'
+          : 'No resume version is available.',
+      );
     }
 
     if (

@@ -79,7 +79,7 @@ export type CvAnalysis = CvAnalysisRecord & {
 };
 
 export type GenerateCvAnalysisInput = {
-  resumeVersionId: string;
+  resumeVersionId?: string;
 };
 
 export type SelectedCvAnalysis = {

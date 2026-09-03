@@ -30,7 +30,10 @@ export class CvAnalysesController {
     applicationId: string,
     @Body() dto: GenerateCvAnalysisDto,
   ) {
-    return this.generationService.generate(applicationId, dto.resumeVersionId);
+    return this.generationService.generate(
+      applicationId,
+      dto.resumeVersionId ?? undefined,
+    );
   }
 
   @Get('applications/:applicationId/cv-analyses')

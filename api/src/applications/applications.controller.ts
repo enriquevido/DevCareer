@@ -26,7 +26,10 @@ export class ApplicationsController {
 
   @Get()
   findAll(@Query() query: QueryApplicationDto) {
-    return this.applicationsService.findAll(query.status, query.search);
+    return this.applicationsService.findAll(
+      query.status,
+      query.search ?? undefined,
+    );
   }
 
   @Get(':id')
