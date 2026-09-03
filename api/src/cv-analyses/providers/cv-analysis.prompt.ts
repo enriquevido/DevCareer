@@ -1,7 +1,7 @@
 import type {
   CvAnalysisMessage,
   CvAnalysisPromptInput,
-} from './cv-analysis.types';
+} from '../domain/cv-analysis.types';
 
 export const CV_ANALYSIS_SYSTEM_PROMPT = `
     You analyze a LaTeX resume against a job vacancy.

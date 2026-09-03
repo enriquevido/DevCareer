@@ -50,7 +50,7 @@ export function applyLatexReplacements(
       return;
     }
 
-    const occurrences = findAtMostTwoOccurrences(
+    const occurrences = findUpToTwoOccurrences(
       source,
       recommendation.originalText,
     );
@@ -128,7 +128,7 @@ export function applyLatexReplacements(
   };
 }
 
-function findAtMostTwoOccurrences(source: string, fragment: string): number[] {
+function findUpToTwoOccurrences(source: string, fragment: string): number[] {
   if (fragment.length === 0) {
     return [0, 0];
   }

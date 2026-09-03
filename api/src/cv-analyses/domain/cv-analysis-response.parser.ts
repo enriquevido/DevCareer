@@ -3,26 +3,26 @@ import type {
   CvAnalysisResult,
 } from './cv-analysis.types';
 
-export enum CvAnalysisResponseErrorCode {
+export enum CvAnalysisResponseParseErrorCode {
   EMPTY_RESPONSE = 'EMPTY_RESPONSE',
   INVALID_JSON = 'INVALID_JSON',
   INVALID_SCHEMA = 'INVALID_SCHEMA',
 }
 
-export class CvAnalysisResponseError extends Error {
+export class CvAnalysisResponseParseError extends Error {
   constructor(
-    public readonly code: CvAnalysisResponseErrorCode,
+    public readonly code: CvAnalysisResponseParseErrorCode,
     message: string,
   ) {
     super(message);
-    this.name = 'CvAnalysisResponseError';
+    this.name = 'CvAnalysisResponseParseError';
   }
 }
 
 export function parseCvAnalysisResponse(content: string): CvAnalysisResult {
   if (content.trim().length === 0) {
-    throw new CvAnalysisResponseError(
-      CvAnalysisResponseErrorCode.EMPTY_RESPONSE,
+    throw new CvAnalysisResponseParseError(
+      CvAnalysisResponseParseErrorCode.EMPTY_RESPONSE,
       'AI response must not be empty.',
     );
   }
@@ -32,8 +32,8 @@ export function parseCvAnalysisResponse(content: string): CvAnalysisResult {
   try {
     parsed = JSON.parse(content);
   } catch {
-    throw new CvAnalysisResponseError(
-      CvAnalysisResponseErrorCode.INVALID_JSON,
+    throw new CvAnalysisResponseParseError(
+      CvAnalysisResponseParseErrorCode.INVALID_JSON,
       'AI response must contain valid JSON.',
     );
   }
@@ -119,9 +119,9 @@ function readStringArray(
   });
 }
 
-function invalidSchema(message: string): CvAnalysisResponseError {
-  return new CvAnalysisResponseError(
-    CvAnalysisResponseErrorCode.INVALID_SCHEMA,
+function invalidSchema(message: string): CvAnalysisResponseParseError {
+  return new CvAnalysisResponseParseError(
+    CvAnalysisResponseParseErrorCode.INVALID_SCHEMA,
     message,
   );
 }

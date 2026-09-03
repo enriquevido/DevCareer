@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
-import type { EnvironmentVariables } from '../config/environment.validation';
+import type { EnvironmentVariables } from '../../config/environment.validation';
 import type {
   CvAnalysisProvider,
   CvAnalysisProviderResponse,
-} from './cv-analysis-provider';
-import type { CvAnalysisMessage } from './cv-analysis.types';
+} from './cv-analysis.provider';
+import type { CvAnalysisMessage } from '../domain/cv-analysis.types';
 
 const DEEPSEEK_BASE_URL = 'https://api.deepseek.com';
 

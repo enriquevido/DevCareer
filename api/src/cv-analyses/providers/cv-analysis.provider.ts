@@ -1,4 +1,4 @@
-import type { CvAnalysisMessage } from './cv-analysis.types';
+import type { CvAnalysisMessage } from '../domain/cv-analysis.types';
 
 export const CV_ANALYSIS_PROVIDER = Symbol('CV_ANALYSIS_PROVIDER');
 

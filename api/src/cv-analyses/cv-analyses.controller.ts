@@ -12,12 +12,14 @@ import { CvAnalysisStatus } from '@prisma/client';
 import { createReadStream } from 'node:fs';
 import type { Response } from 'express';
 import { CompiledPdfStorage } from '../storage/compiled-pdf.storage';
+import { CvAnalysisGenerationService } from './application/cv-analysis-generation.service';
 import { CvAnalysesService } from './cv-analyses.service';
 import { GenerateCvAnalysisDto } from './dto/generate-cv-analysis.dto';
 
 @Controller()
 export class CvAnalysesController {
   constructor(
+    private readonly generationService: CvAnalysisGenerationService,
     private readonly cvAnalysesService: CvAnalysesService,
     private readonly compiledPdfStorage: CompiledPdfStorage,
   ) {}
@@ -28,7 +30,7 @@ export class CvAnalysesController {
     applicationId: string,
     @Body() dto: GenerateCvAnalysisDto,
   ) {
-    return this.cvAnalysesService.generate(applicationId, dto.resumeVersionId);
+    return this.generationService.generate(applicationId, dto.resumeVersionId);
   }
 
   @Get('applications/:applicationId/cv-analyses')
